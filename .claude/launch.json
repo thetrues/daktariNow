@@ -1,0 +1,39 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "medic-web",
+      "runtimeExecutable": "flutter",
+      "runtimeArgs": [
+        "run",
+        "-d",
+        "web-server",
+        "--web-port",
+        "5173",
+        "--web-hostname",
+        "localhost"
+      ],
+      "port": 5173
+    },
+    {
+      "name": "medic-web-release",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "C:/Users/thetr/AppData/Local/Temp/claude/D--ai-medic-medic-app/51acaa31-15c4-4f79-bb09-703666bdd140/scratchpad/spa_server.py",
+        "build/web",
+        "5174"
+      ],
+      "port": 5174
+    },
+    {
+      "name": "medic-admin",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "C:/Users/thetr/AppData/Local/Temp/claude/D--ai-medic-medic-app/51acaa31-15c4-4f79-bb09-703666bdd140/scratchpad/spa_server.py",
+        "D:/ai/medic/medic_admin/build/web",
+        "5175"
+      ],
+      "port": 5175
+    }
+  ]
+}
