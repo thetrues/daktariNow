@@ -1,0 +1,42 @@
+name: Test and publish web image
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  # Set a repository variable API_BASE_URL to point at another server.
+  API_BASE_URL: ${{ vars.API_BASE_URL || 'https://api.daktarinow.com/api/v1' }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.3
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test
+      - run: flutter build web --release --dart-define=API_BASE_URL=${{ env.API_BASE_URL }}
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/daktarinow-web:latest
+            ghcr.io/${{ github.repository_owner }}/daktarinow-web:sha-${{ github.sha }}

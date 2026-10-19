@@ -10,18 +10,49 @@ abstract interface class TokenStore {
 
 /// Keychain on iOS, encrypted storage on Android, WebCrypto-encrypted
 /// storage on the web.
+///
+/// Browsers only offer WebCrypto on https or localhost. When secure storage
+/// is unavailable (e.g. the web app opened over plain http on a LAN address
+/// during development) the token is kept in memory instead: sign-in works,
+/// but the session ends when the page reloads.
 class SecureTokenStore implements TokenStore {
   static const _key = 'medic_refresh_token';
   final _storage = const FlutterSecureStorage();
+  String? _memory;
+  bool _unavailable = false;
 
   @override
-  Future<String?> read() => _storage.read(key: _key);
+  Future<String?> read() async {
+    if (_unavailable) return _memory;
+    try {
+      return await _storage.read(key: _key);
+    } catch (_) {
+      _unavailable = true;
+      return _memory;
+    }
+  }
 
   @override
-  Future<void> write(String token) => _storage.write(key: _key, value: token);
+  Future<void> write(String token) async {
+    _memory = token;
+    if (_unavailable) return;
+    try {
+      await _storage.write(key: _key, value: token);
+    } catch (_) {
+      _unavailable = true;
+    }
+  }
 
   @override
-  Future<void> clear() => _storage.delete(key: _key);
+  Future<void> clear() async {
+    _memory = null;
+    if (_unavailable) return;
+    try {
+      await _storage.delete(key: _key);
+    } catch (_) {
+      _unavailable = true;
+    }
+  }
 }
 
 /// For tests.
