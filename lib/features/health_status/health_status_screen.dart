@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../app/locale_controller.dart';
 import '../../app/theme/app_colors.dart';
 import '../../core/data/repositories.dart';
 import '../../core/models/health.dart';
@@ -34,14 +35,15 @@ class _HealthStatusScreenState extends ConsumerState<HealthStatusScreen> {
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
     final history = ref.watch(vitalHistoryProvider(_type));
+    final l = context.l10n;
 
     return PageScaffold(
-      title: 'Health Status',
+      title: l.healthStatus,
       showBack: true,
       bottom: FilledButton.icon(
         onPressed: () => addVitalReading(context, ref, initial: _type),
         icon: const Icon(Icons.add_rounded),
-        label: const Text('Add reading'),
+        label: Text(l.addReading),
       ),
       children: [
         SizedBox(
@@ -53,7 +55,7 @@ class _HealthStatusScreenState extends ConsumerState<HealthStatusScreen> {
                 Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: ChoiceChip(
-                    label: Text(t.label),
+                    label: Text(t.label(l)),
                     selected: _type == t,
                     labelStyle: TextStyle(
                       color: _type == t ? Colors.white : AppColors.textPrimary,
@@ -80,12 +82,11 @@ class _HealthStatusScreenState extends ConsumerState<HealthStatusScreen> {
                       size: 56,
                     ),
                     const SizedBox(height: 12),
-                    Text('No ${_type.label.toLowerCase()} readings yet',
+                    Text(l.noReadingsYetFor(_type.label(l).toLowerCase()),
                         style: text.titleSmall),
                     const SizedBox(height: 4),
                     Text(
-                      'Log readings from your own devices so your doctor can '
-                      'see how you are doing.',
+                      l.logReadingsHint,
                       textAlign: TextAlign.center,
                       style: text.bodySmall?.copyWith(color: AppColors.textSecondary),
                     ),
@@ -112,7 +113,7 @@ class _HealthStatusScreenState extends ConsumerState<HealthStatusScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Latest ${_type.label.toLowerCase()}',
+                            Text(l.latestOf(_type.label(l).toLowerCase()),
                                 style: text.bodyMedium
                                     ?.copyWith(color: AppColors.textSecondary)),
                             Text.rich(TextSpan(
@@ -133,13 +134,13 @@ class _HealthStatusScreenState extends ConsumerState<HealthStatusScreen> {
                   ),
                 ),
                 if (readings.length > 1) ...[
-                  const SectionHeader('Last 30 days'),
+                  SectionHeader(l.last30Days),
                   AppCard(
                     padding: const EdgeInsets.fromLTRB(8, 20, 16, 8),
                     child: SizedBox(height: 200, child: _TrendChart(readings: readings)),
                   ),
                 ],
-                const SectionHeader('Readings'),
+                SectionHeader(l.readings),
                 AppCard(
                   padding: EdgeInsets.zero,
                   child: Column(
@@ -149,7 +150,7 @@ class _HealthStatusScreenState extends ConsumerState<HealthStatusScreen> {
                           title: Text('${r.display} ${_type.unit}'),
                           subtitle: Text(DateFormat('EEE d MMM, h:mm a').format(r.recordedAt)),
                           trailing: IconButton(
-                            tooltip: 'Delete reading',
+                            tooltip: l.deleteReading,
                             icon: const Icon(Icons.delete_outline_rounded),
                             onPressed: () => _delete(r),
                           ),
@@ -159,8 +160,7 @@ class _HealthStatusScreenState extends ConsumerState<HealthStatusScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'These are your own readings, not a diagnosis. Talk to a '
-                  'doctor if something looks unusual.',
+                  l.notADiagnosis,
                   style: text.bodySmall?.copyWith(color: AppColors.textMuted),
                 ),
               ],

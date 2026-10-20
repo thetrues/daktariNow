@@ -24,6 +24,7 @@ import '../../features/profile/profile_forms.dart';
 import '../../features/profile/profile_screen.dart';
 import '../../features/services/services_screens.dart';
 import '../layout/adaptive_shell.dart';
+import '../locale_controller.dart';
 
 abstract final class Routes {
   static const loading = '/loading';
@@ -90,7 +91,9 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: Routes.login, builder: (_, _) => const LoginScreen()),
       GoRoute(
         path: Routes.register,
-        builder: (_, _) => const RegisterScreen(),
+        builder: (_, state) => RegisterScreen(
+          asDoctor: state.uri.queryParameters['as'] == 'doctor',
+        ),
       ),
       GoRoute(
         path: Routes.pendingVerification,
@@ -102,24 +105,25 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state, shell) => AdaptiveShell(
           navigationShell: shell,
           centerAction: ShellAction(
-            label: 'Find a doctor',
+            label: context.l10n.findADoctor,
             icon: Icons.add_rounded,
             onPressed: (context) => context.push(Routes.doctors),
           ),
-          destinations: const [
-            ShellDestination('Home', Icons.home_outlined, Icons.home_rounded),
+          destinations: [
             ShellDestination(
-              'Appointments',
+                context.l10n.navHome, Icons.home_outlined, Icons.home_rounded),
+            ShellDestination(
+              context.l10n.navAppointments,
               Icons.calendar_today_outlined,
               Icons.calendar_today_rounded,
             ),
             ShellDestination(
-              'Records',
+              context.l10n.navRecords,
               Icons.description_outlined,
               Icons.description_rounded,
             ),
             ShellDestination(
-              'Profile',
+              context.l10n.navProfile,
               Icons.person_outline_rounded,
               Icons.person_rounded,
             ),
@@ -152,29 +156,29 @@ final routerProvider = Provider<GoRouter>((ref) {
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) => AdaptiveShell(
           navigationShell: shell,
-          destinations: const [
+          destinations: [
             ShellDestination(
-              'Dashboard',
+              context.l10n.navDashboard,
               Icons.space_dashboard_outlined,
               Icons.space_dashboard_rounded,
             ),
             ShellDestination(
-              'Schedule',
+              context.l10n.navSchedule,
               Icons.calendar_month_outlined,
               Icons.calendar_month_rounded,
             ),
             ShellDestination(
-              'Patients',
+              context.l10n.navPatients,
               Icons.groups_outlined,
               Icons.groups_rounded,
             ),
             ShellDestination(
-              'Earnings',
+              context.l10n.navEarnings,
               Icons.account_balance_wallet_outlined,
               Icons.account_balance_wallet_rounded,
             ),
             ShellDestination(
-              'Profile',
+              context.l10n.navProfile,
               Icons.person_outline_rounded,
               Icons.person_rounded,
             ),

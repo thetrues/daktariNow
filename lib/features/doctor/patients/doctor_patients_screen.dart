@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../app/locale_controller.dart';
 import '../../../app/router/app_router.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../core/data/repositories.dart';
@@ -26,15 +27,16 @@ class _DoctorPatientsScreenState extends ConsumerState<DoctorPatientsScreen> {
   Widget build(BuildContext context) {
     final consultations = ref.watch(consultationsProvider(ConsultationScope.all));
     final text = Theme.of(context).textTheme;
+    final l = context.l10n;
 
     return PageScaffold(
-      title: 'My Patients',
+      title: l.myPatients,
       children: [
         TextField(
           onChanged: (v) => setState(() => _query = v.trim().toLowerCase()),
-          decoration: const InputDecoration(
-            hintText: 'Search patients...',
-            prefixIcon: Icon(Icons.search_rounded),
+          decoration: InputDecoration(
+            hintText: l.searchPatients,
+            prefixIcon: const Icon(Icons.search_rounded),
           ),
         ),
         const SizedBox(height: 16),
@@ -55,7 +57,7 @@ class _DoctorPatientsScreenState extends ConsumerState<DoctorPatientsScreen> {
                 .toList()
               ..sort((a, b) => b.scheduledAt.compareTo(a.scheduledAt));
             if (patients.isEmpty) {
-              return const AppCard(child: Text('No patients yet.'));
+              return AppCard(child: Text(l.noPatientsYet));
             }
             return AppCard(
               padding: EdgeInsets.zero,
@@ -68,9 +70,9 @@ class _DoctorPatientsScreenState extends ConsumerState<DoctorPatientsScreen> {
                           style: text.titleSmall
                               ?.copyWith(fontWeight: FontWeight.w600)),
                       subtitle: Text(
-                        '${c.reason ?? 'Consultation'} · '
+                        '${c.reason ?? l.consultation} · '
                         '${DateFormat('d MMM').format(c.scheduledAt)} · '
-                        '${c.status.label}',
+                        '${c.status.label(l)}',
                         style: text.bodySmall
                             ?.copyWith(color: AppColors.textSecondary),
                       ),

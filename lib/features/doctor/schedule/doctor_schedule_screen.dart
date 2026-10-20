@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../../app/locale_controller.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../core/data/repositories.dart';
 import '../../../core/models/wallet.dart';
@@ -57,7 +58,6 @@ class DoctorScheduleScreen extends ConsumerStatefulWidget {
 
 class _DoctorScheduleScreenState extends ConsumerState<DoctorScheduleScreen> {
   static const _hours = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
-  static const _weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
   /// ISO weekday (1–7) → enabled hours. Null until loaded.
   Map<int, Set<int>>? _available;
@@ -73,7 +73,7 @@ class _DoctorScheduleScreenState extends ConsumerState<DoctorScheduleScreen> {
       ref.invalidate(availabilityProvider);
       if (mounted) {
         setState(() => _dirty = false);
-        showInfo(context, 'Availability saved');
+        showInfo(context, context.l10n.availabilitySaved);
       }
     } catch (e) {
       if (mounted) showError(context, e);
@@ -90,24 +90,24 @@ class _DoctorScheduleScreenState extends ConsumerState<DoctorScheduleScreen> {
     if (_available == null && remote.hasValue) {
       _available = windowsToHours(remote.value!);
     }
+    final l = context.l10n;
 
     return PageScaffold(
-      title: 'My Schedule',
+      title: l.mySchedule,
       actions: [
         Padding(
           padding: const EdgeInsets.only(right: 12),
           child: FilledButton.icon(
             onPressed: _dirty && !_saving ? _save : null,
             icon: const Icon(Icons.save_outlined, size: 18),
-            label: Text(_dirty ? 'Save' : 'Saved'),
+            label: Text(_dirty ? l.save : l.saved),
             style: FilledButton.styleFrom(minimumSize: const Size(0, 40)),
           ),
         ),
       ],
       children: [
         Text(
-          'Tap an hour to toggle it. Patients only see enabled times'
-          '${timezone == null ? '' : ' (your timezone: $timezone)'}.',
+          timezone == null ? l.scheduleHelp : l.scheduleHelpTz('$timezone'),
           style: text.bodyMedium?.copyWith(color: AppColors.textSecondary),
         ),
         const SizedBox(height: 16),
@@ -128,8 +128,11 @@ class _DoctorScheduleScreenState extends ConsumerState<DoctorScheduleScreen> {
                 dataRowMinHeight: 44,
                 dataRowMaxHeight: 44,
                 columns: [
-                  const DataColumn(label: Text('Time')),
-                  for (final d in _weekdays) DataColumn(label: Text(d)),
+                  DataColumn(label: Text(l.time)),
+                  // 1 Jan 2024 was a Monday; ISO weekdays 1–7.
+                  for (var d = 1; d <= 7; d++)
+                    DataColumn(
+                        label: Text(DateFormat('EEE').format(DateTime(2024, 1, d)))),
                 ],
                 rows: [
                   for (final h in _hours)

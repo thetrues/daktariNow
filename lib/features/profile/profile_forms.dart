@@ -3,10 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../app/locale_controller.dart';
 import '../../app/theme/app_colors.dart';
 import '../../core/data/repositories.dart';
 import '../../core/format.dart';
 import '../../core/models/medical_record.dart';
+import '../../l10n/app_localizations.dart';
 import '../../shared/file_actions.dart';
 import '../../shared/widgets/common.dart';
 import '../auth/auth_controller.dart';
@@ -43,7 +45,7 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
           );
       ref.read(authControllerProvider.notifier).updateUser(json);
       if (mounted) {
-        showInfo(context, 'Saved');
+        showInfo(context, context.l10n.saved);
         Navigator.of(context).maybePop();
       }
     } catch (e) {
@@ -55,10 +57,11 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     return PageScaffold(
-      title: 'Personal information',
+      title: l.personalInformation,
       showBack: true,
-      bottom: FilledButton(onPressed: _saving ? null : _save, child: const Text('Save')),
+      bottom: FilledButton(onPressed: _saving ? null : _save, child: Text(l.save)),
       children: [
         _Narrow(
           child: Form(
@@ -69,30 +72,30 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
                 TextFormField(
                   controller: _name,
                   textCapitalization: TextCapitalization.words,
-                  decoration: const InputDecoration(labelText: 'Full name'),
-                  validator: (v) => (v?.trim().length ?? 0) < 2 ? 'Enter your name' : null,
+                  decoration: InputDecoration(labelText: l.fullName),
+                  validator: (v) => (v?.trim().length ?? 0) < 2 ? l.enterName : null,
                 ),
                 const SizedBox(height: 14),
                 TextFormField(
                   controller: _phone,
                   keyboardType: TextInputType.phone,
-                  decoration: const InputDecoration(
-                    labelText: 'Phone',
+                  decoration: InputDecoration(
+                    labelText: l.phone,
                     hintText: '+255 7XX XXX XXX',
                   ),
                   validator: (v) {
                     final t = v?.trim() ?? '';
                     if (t.isEmpty) return null;
-                    return RegExp(r'^\+?[0-9 ]{9,16}$').hasMatch(t) ? null : 'Enter a valid phone number';
+                    return RegExp(r'^\+?[0-9 ]{9,16}$').hasMatch(t) ? null : l.enterValidPhone;
                   },
                 ),
                 const SizedBox(height: 14),
                 TextFormField(
                   initialValue: _user.email,
                   enabled: false,
-                  decoration: const InputDecoration(
-                    labelText: 'Email',
-                    helperText: 'Contact support to change your email.',
+                  decoration: InputDecoration(
+                    labelText: l.email,
+                    helperText: l.changeEmailHelp,
                   ),
                 ),
               ],
@@ -143,7 +146,7 @@ class _HealthInfoScreenState extends ConsumerState<HealthInfoScreen> {
           );
       ref.read(authControllerProvider.notifier).updateUser(json);
       if (mounted) {
-        showInfo(context, 'Saved');
+        showInfo(context, context.l10n.saved);
         Navigator.of(context).maybePop();
       }
     } catch (e) {
@@ -156,18 +159,19 @@ class _HealthInfoScreenState extends ConsumerState<HealthInfoScreen> {
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
+    final l = context.l10n;
     return PageScaffold(
-      title: 'Health information',
+      title: l.healthInformation,
       showBack: true,
-      bottom: FilledButton(onPressed: _saving ? null : _save, child: const Text('Save')),
+      bottom: FilledButton(onPressed: _saving ? null : _save, child: Text(l.save)),
       children: [
         _Narrow(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text('Shared with your doctor during consultations.',
+              Text(l.sharedWithDoctor,
                   style: text.bodyMedium?.copyWith(color: AppColors.textSecondary)),
-              const SectionHeader('Blood group'),
+              SectionHeader(l.bloodGroup),
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
@@ -183,7 +187,7 @@ class _HealthInfoScreenState extends ConsumerState<HealthInfoScreen> {
                     ),
                 ],
               ),
-              const SectionHeader('Allergies'),
+              SectionHeader(l.allergies),
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
@@ -194,7 +198,7 @@ class _HealthInfoScreenState extends ConsumerState<HealthInfoScreen> {
                       onDeleted: () => setState(() => _allergies.remove(a)),
                     ),
                   if (_allergies.isEmpty)
-                    Text('None recorded', style: text.bodyMedium?.copyWith(color: AppColors.textMuted)),
+                    Text(l.noneRecorded, style: text.bodyMedium?.copyWith(color: AppColors.textMuted)),
                 ],
               ),
               const SizedBox(height: 12),
@@ -205,12 +209,12 @@ class _HealthInfoScreenState extends ConsumerState<HealthInfoScreen> {
                       controller: _allergy,
                       textCapitalization: TextCapitalization.sentences,
                       onSubmitted: (_) => _addAllergy(),
-                      decoration: const InputDecoration(hintText: 'e.g. Penicillin, peanuts'),
+                      decoration: InputDecoration(hintText: l.allergyHint),
                     ),
                   ),
                   const SizedBox(width: 8),
                   IconButton.filled(
-                    tooltip: 'Add allergy',
+                    tooltip: l.addAllergy,
                     onPressed: _addAllergy,
                     icon: const Icon(Icons.add_rounded),
                   ),
@@ -279,7 +283,7 @@ class _ProfessionalProfileScreenState extends ConsumerState<ProfessionalProfileS
       });
       ref.invalidate(doctorProfileProvider);
       if (mounted) {
-        showInfo(context, 'Profile updated');
+        showInfo(context, context.l10n.profileUpdated);
         Navigator.of(context).maybePop();
       }
     } catch (e) {
@@ -294,13 +298,14 @@ class _ProfessionalProfileScreenState extends ConsumerState<ProfessionalProfileS
     final profile = ref.watch(doctorProfileProvider);
     final hospitals = ref.watch(_hospitalsProvider).value ?? const [];
     if (profile.hasValue) _fill(profile.value!);
+    final l = context.l10n;
 
     return PageScaffold(
-      title: 'Professional profile',
+      title: l.professionalProfile,
       showBack: true,
       bottom: FilledButton(
         onPressed: _saving || !_loaded ? null : _save,
-        child: const Text('Save'),
+        child: Text(l.save),
       ),
       children: [
         if (!_loaded)
@@ -320,9 +325,9 @@ class _ProfessionalProfileScreenState extends ConsumerState<ProfessionalProfileS
                     controller: _bio,
                     maxLines: 4,
                     maxLength: 1000,
-                    decoration: const InputDecoration(
-                      labelText: 'About you',
-                      hintText: 'What you treat, languages you speak…',
+                    decoration: InputDecoration(
+                      labelText: l.aboutYou,
+                      hintText: l.aboutYouHint,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -334,14 +339,14 @@ class _ProfessionalProfileScreenState extends ConsumerState<ProfessionalProfileS
                       FilteringTextInputFormatter.allow(moneyInputPattern(_currency)),
                     ],
                     decoration: InputDecoration(
-                      labelText: 'Consultation fee',
+                      labelText: l.consultationFee,
                       prefixText: '${currencySymbol(_currency)} ',
-                      helperText: 'What patients pay per consultation. '
-                          'The platform commission is deducted from it.',
+                      helperText: l.feeHelper,
+                      helperMaxLines: 2,
                     ),
                     validator: (v) {
                       final minor = parseMoney(v ?? '', _currency);
-                      if (minor == null || minor <= 0) return 'Enter your fee';
+                      if (minor == null || minor <= 0) return l.enterYourFee;
                       return null;
                     },
                   ),
@@ -350,31 +355,31 @@ class _ProfessionalProfileScreenState extends ConsumerState<ProfessionalProfileS
                     controller: _years,
                     keyboardType: TextInputType.number,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    decoration: const InputDecoration(labelText: 'Years of experience'),
+                    decoration: InputDecoration(labelText: l.yearsOfExperience),
                     validator: (v) {
                       final n = int.tryParse(v ?? '');
-                      return n == null || n > 70 ? 'Enter a number from 0 to 70' : null;
+                      return n == null || n > 70 ? l.enter0to70 : null;
                     },
                   ),
                   const SizedBox(height: 14),
                   DropdownButtonFormField<String?>(
                     initialValue: _hospitalId,
-                    decoration: const InputDecoration(labelText: 'Hospital / clinic'),
+                    decoration: InputDecoration(labelText: l.hospitalClinic),
                     items: [
-                      const DropdownMenuItem(value: null, child: Text('Independent')),
+                      DropdownMenuItem(value: null, child: Text(l.independent)),
                       for (final (id, label) in hospitals)
                         DropdownMenuItem(value: id, child: Text(label)),
                     ],
                     onChanged: (v) => setState(() => _hospitalId = v),
                   ),
-                  const SectionHeader('Consultation length'),
+                  SectionHeader(l.consultationLength),
                   SegmentedButton<int>(
-                    segments: const [
-                      ButtonSegment(value: 15, label: Text('15 min')),
-                      ButtonSegment(value: 20, label: Text('20')),
-                      ButtonSegment(value: 30, label: Text('30')),
-                      ButtonSegment(value: 45, label: Text('45')),
-                      ButtonSegment(value: 60, label: Text('60')),
+                    segments: [
+                      ButtonSegment(value: 15, label: Text(l.minutesShort(15))),
+                      const ButtonSegment(value: 20, label: Text('20')),
+                      const ButtonSegment(value: 30, label: Text('30')),
+                      const ButtonSegment(value: 45, label: Text('45')),
+                      const ButtonSegment(value: 60, label: Text('60')),
                     ],
                     selected: {_slotMinutes},
                     onSelectionChanged: (s) => setState(() => _slotMinutes = s.first),
@@ -394,10 +399,10 @@ class DoctorDocumentsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const PageScaffold(
-      title: 'Verification documents',
+    return PageScaffold(
+      title: context.l10n.verificationDocuments,
       showBack: true,
-      children: [_Narrow(child: DoctorDocuments())],
+      children: const [_Narrow(child: DoctorDocuments())],
     );
   }
 }
@@ -412,26 +417,30 @@ class DoctorDocuments extends ConsumerStatefulWidget {
 }
 
 class _DoctorDocumentsState extends ConsumerState<DoctorDocuments> {
-  static const _types = {
-    'LICENSE': 'Medical license',
-    'NATIONAL_ID': 'National ID',
-    'CERTIFICATE': 'Certificate',
-    'OTHER': 'Other',
-  };
+  static const _types = ['LICENSE', 'NATIONAL_ID', 'CERTIFICATE', 'OTHER'];
   bool _uploading = false;
 
+  String _typeLabel(AppLocalizations l, Object? type) => switch (type) {
+        'LICENSE' => l.docLicense,
+        'NATIONAL_ID' => l.docNationalId,
+        'CERTIFICATE' => l.docCertificate,
+        'OTHER' => l.recordOther,
+        _ => '$type',
+      };
+
   Future<void> _upload() async {
+    final l = context.l10n;
     final type = await showDialog<String>(
       context: context,
       builder: (ctx) => SimpleDialog(
-        title: const Text('What are you uploading?'),
+        title: Text(l.whatUploading),
         children: [
-          for (final e in _types.entries)
+          for (final t in _types)
             SimpleDialogOption(
-              onPressed: () => Navigator.pop(ctx, e.key),
+              onPressed: () => Navigator.pop(ctx, t),
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 6),
-                child: Text(e.value),
+                child: Text(_typeLabel(l, t)),
               ),
             ),
         ],
@@ -444,7 +453,7 @@ class _DoctorDocumentsState extends ConsumerState<DoctorDocuments> {
       if (file == null) return;
       await ref.read(doctorSelfRepositoryProvider).addDocument(type, file.id);
       ref.invalidate(doctorProfileProvider);
-      if (mounted) showInfo(context, '${_types[type]} uploaded');
+      if (mounted) showInfo(context, l.docUploaded(_typeLabel(l, type)));
     } catch (e) {
       if (mounted) showError(context, e);
     } finally {
@@ -455,6 +464,7 @@ class _DoctorDocumentsState extends ConsumerState<DoctorDocuments> {
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
+    final l = context.l10n;
     final profile = ref.watch(doctorProfileProvider);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -467,11 +477,7 @@ class _DoctorDocumentsState extends ConsumerState<DoctorDocuments> {
             if (docs.isEmpty) {
               return AppCard(
                 color: AppColors.amberSoft,
-                child: Text(
-                  'Upload your medical license and national ID. Our team checks '
-                  'them before you can accept patients.',
-                  style: text.bodyMedium,
-                ),
+                child: Text(l.uploadDocsIntro, style: text.bodyMedium),
               );
             }
             return AppCard(
@@ -484,15 +490,16 @@ class _DoctorDocumentsState extends ConsumerState<DoctorDocuments> {
                       final file = f == null ? null : StoredFileInfo.fromJson(f);
                       return ListTile(
                         leading: const Icon(Icons.description_outlined, color: AppColors.primary),
-                        title: Text(_types[d['type']] ?? '${d['type']}'),
+                        title: Text(_typeLabel(l, d['type'])),
                         subtitle: Text([
                           if (file != null) file.filename,
-                          'Uploaded ${DateFormat('d MMM yyyy').format(DateTime.parse(d['uploadedAt'] as String).toLocal())}',
+                          l.uploadedOn(DateFormat('d MMM yyyy').format(
+                              DateTime.parse(d['uploadedAt'] as String).toLocal())),
                         ].join(' · ')),
                         trailing: file == null
                             ? null
                             : IconButton(
-                                tooltip: 'Open',
+                                tooltip: l.open,
                                 icon: const Icon(Icons.open_in_new_rounded),
                                 onPressed: () => openStoredFile(context, ref, file),
                               ),
@@ -510,10 +517,10 @@ class _DoctorDocumentsState extends ConsumerState<DoctorDocuments> {
               ? const SizedBox.square(
                   dimension: 18, child: CircularProgressIndicator(strokeWidth: 2))
               : const Icon(Icons.upload_file_rounded),
-          label: const Text('Upload document'),
+          label: Text(l.uploadDocument),
         ),
         const SizedBox(height: 6),
-        Text('PDF, JPG, PNG or WebP, up to 10 MB.',
+        Text(l.fileTypesHint,
             style: text.bodySmall?.copyWith(color: AppColors.textMuted)),
       ],
     );
@@ -526,7 +533,7 @@ Future<void> changePassword(BuildContext context, WidgetRef ref) async {
     builder: (_) => const _ChangePasswordDialog(),
   );
   if (done == true && context.mounted) {
-    showInfo(context, 'Password changed. Other devices have been signed out.');
+    showInfo(context, context.l10n.passwordChanged);
   }
 }
 
@@ -573,8 +580,9 @@ class _ChangePasswordDialogState extends ConsumerState<_ChangePasswordDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     return AlertDialog(
-      title: const Text('Change password'),
+      title: Text(l.changePassword),
       content: SizedBox(
         width: 380,
         child: Form(
@@ -587,24 +595,24 @@ class _ChangePasswordDialogState extends ConsumerState<_ChangePasswordDialog> {
                   controller: _current,
                   obscureText: true,
                   autofillHints: const [AutofillHints.password],
-                  decoration: const InputDecoration(labelText: 'Current password'),
-                  validator: (v) => (v?.isEmpty ?? true) ? 'Required' : null,
+                  decoration: InputDecoration(labelText: l.currentPassword),
+                  validator: (v) => (v?.isEmpty ?? true) ? l.required : null,
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _next,
                   obscureText: true,
                   autofillHints: const [AutofillHints.newPassword],
-                  decoration: const InputDecoration(labelText: 'New password'),
-                  validator: (v) => (v?.length ?? 0) < 8 ? 'At least 8 characters' : null,
+                  decoration: InputDecoration(labelText: l.newPassword),
+                  validator: (v) => (v?.length ?? 0) < 8 ? l.atLeast8Chars : null,
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _confirm,
                   obscureText: true,
                   autofillHints: const [AutofillHints.newPassword],
-                  decoration: const InputDecoration(labelText: 'Confirm new password'),
-                  validator: (v) => v != _next.text ? 'Passwords do not match' : null,
+                  decoration: InputDecoration(labelText: l.confirmNewPassword),
+                  validator: (v) => v != _next.text ? l.passwordsDontMatch : null,
                 ),
                 if (_error != null) ...[
                   const SizedBox(height: 12),
@@ -616,8 +624,8 @@ class _ChangePasswordDialogState extends ConsumerState<_ChangePasswordDialog> {
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-        FilledButton(onPressed: _saving ? null : _save, child: const Text('Change')),
+        TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l.cancel)),
+        FilledButton(onPressed: _saving ? null : _save, child: Text(l.change)),
       ],
     );
   }

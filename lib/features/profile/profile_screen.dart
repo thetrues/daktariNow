@@ -3,10 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../app/locale_controller.dart';
 import '../../app/router/app_router.dart';
 import '../../app/theme/app_colors.dart';
 import '../../shared/widgets/avatar.dart';
 import '../../shared/widgets/common.dart';
+import '../../shared/widgets/language_switcher.dart';
 import '../auth/auth_controller.dart';
 import 'profile_forms.dart';
 
@@ -22,29 +24,33 @@ class ProfileScreen extends ConsumerWidget {
     final user = ref.watch(currentUserProvider);
     final text = Theme.of(context).textTheme;
     final base = user.isDoctor ? Routes.doctorProfile : Routes.profile;
+    final l = context.l10n;
 
     final items = <(IconData, String, String?, VoidCallback)>[
-      (Icons.person_outline_rounded, 'Personal information', user.phone ?? 'Add your phone number',
+      (Icons.person_outline_rounded, l.personalInformation, user.phone ?? l.addPhoneNumber,
           () => context.push('$base/personal')),
       if (user.isDoctor) ...[
-        (Icons.medical_information_outlined, 'Professional profile',
-            'Fee, bio, hospital, consultation length',
+        (Icons.medical_information_outlined, l.professionalProfile,
+            l.professionalProfileHint,
             () => context.push(Routes.doctorProfessional)),
-        (Icons.verified_outlined, 'Verification documents', 'License and ID',
+        (Icons.verified_outlined, l.verificationDocuments, l.licenseAndId,
             () => context.push(Routes.doctorDocuments)),
       ] else ...[
-        (Icons.favorite_border_rounded, 'Health information',
-            [if (user.bloodGroup != null) 'Blood ${user.bloodGroup}', if (user.allergies.isNotEmpty) 'Allergies'].join(' · ').ifEmpty('Blood group, allergies'),
+        (Icons.favorite_border_rounded, l.healthInformation,
+            [
+              if (user.bloodGroup != null) l.bloodGroupValue(user.bloodGroup!),
+              if (user.allergies.isNotEmpty) l.allergies,
+            ].join(' · ').ifEmpty(l.bloodGroupAllergies),
             () => context.push(Routes.healthInfo)),
-        (Icons.home_outlined, 'Home service requests', null,
+        (Icons.home_outlined, l.homeServiceRequests, null,
             () => context.push(Routes.serviceRequests)),
       ],
-      (Icons.lock_outline_rounded, 'Change password', null, () => changePassword(context, ref)),
-      (Icons.help_outline_rounded, 'Help & support', null, () => _help(context)),
+      (Icons.lock_outline_rounded, l.changePassword, null, () => changePassword(context, ref)),
+      (Icons.help_outline_rounded, l.helpSupport, null, () => _help(context)),
     ];
 
     return PageScaffold(
-      title: 'Profile',
+      title: l.navProfile,
       children: [
         AppCard(
           child: Row(
@@ -61,9 +67,10 @@ class ProfileScreen extends ConsumerWidget {
                         style: text.bodySmall?.copyWith(color: AppColors.textSecondary)),
                     if (user.isVerifiedDoctor) ...[
                       const SizedBox(height: 6),
-                      const Chip(
-                        avatar: Icon(Icons.verified_rounded, size: 16, color: AppColors.primary),
-                        label: Text('Verified doctor'),
+                      Chip(
+                        avatar: const Icon(Icons.verified_rounded,
+                            size: 16, color: AppColors.primary),
+                        label: Text(l.verifiedDoctor),
                         visualDensity: VisualDensity.compact,
                       ),
                     ],
@@ -78,6 +85,11 @@ class ProfileScreen extends ConsumerWidget {
           padding: EdgeInsets.zero,
           child: Column(
             children: [
+              ListTile(
+                leading: const Icon(Icons.translate_rounded, color: AppColors.primary),
+                title: Text(l.language),
+                trailing: const LanguageSwitcher(),
+              ),
               for (final (icon, label, subtitle, onTap) in items)
                 ListTile(
                   leading: Icon(icon, color: AppColors.primary),
@@ -93,7 +105,7 @@ class ProfileScreen extends ConsumerWidget {
         OutlinedButton.icon(
           onPressed: () => ref.read(authControllerProvider.notifier).signOut(),
           icon: const Icon(Icons.logout_rounded),
-          label: const Text('Sign out'),
+          label: Text(l.signOut),
           style: OutlinedButton.styleFrom(
             foregroundColor: AppColors.danger,
             side: const BorderSide(color: AppColors.danger),
@@ -105,6 +117,7 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   void _help(BuildContext context) {
+    final l = context.l10n;
     showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
@@ -115,13 +128,10 @@ class ProfileScreen extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Help & support',
+              Text(l.helpSupport,
                   style: Theme.of(ctx).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
               const SizedBox(height: 8),
-              const Text(
-                'Questions about bookings, payments or your account? Email us and '
-                'we will get back to you.',
-              ),
+              Text(l.helpBody),
               const SizedBox(height: 8),
               ListTile(
                 contentPadding: EdgeInsets.zero,
@@ -132,8 +142,8 @@ class ProfileScreen extends ConsumerWidget {
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.emergency_outlined, color: AppColors.danger),
-                title: const Text('Medical emergency?'),
-                subtitle: const Text('Do not wait for support. Call emergency services.'),
+                title: Text(l.medicalEmergency),
+                subtitle: Text(l.emergencyDontWait),
                 onTap: () {
                   Navigator.pop(ctx);
                   context.push(Routes.emergency);

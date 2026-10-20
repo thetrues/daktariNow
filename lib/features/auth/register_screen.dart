@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../app/locale_controller.dart';
 import '../../app/router/app_router.dart';
 import '../../app/theme/app_colors.dart';
 import '../../core/api/api_errors.dart';
@@ -11,7 +12,10 @@ import 'auth_controller.dart';
 import 'auth_form_layout.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
-  const RegisterScreen({super.key});
+  const RegisterScreen({super.key, this.asDoctor = false});
+
+  /// Start with "I'm a doctor" selected (from the landing page).
+  final bool asDoctor;
 
   @override
   ConsumerState<RegisterScreen> createState() => _RegisterScreenState();
@@ -24,7 +28,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _phone = TextEditingController();
   final _password = TextEditingController();
   final _license = TextEditingController();
-  UserRole _role = UserRole.patient;
+  late UserRole _role = widget.asDoctor ? UserRole.doctor : UserRole.patient;
   String? _specialtyId;
   bool _loading = false;
   String? _error;
@@ -63,30 +67,29 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final isDoctor = _role == UserRole.doctor;
     final specialties = ref.watch(specialtiesProvider);
 
     return AuthFormLayout(
-      title: 'Create account',
-      subtitle: isDoctor
-          ? 'Doctor accounts are reviewed by our team before going live.'
-          : 'Get care from verified specialists.',
+      title: l.createAccount,
+      subtitle: isDoctor ? l.registerSubtitleDoctor : l.registerSubtitlePatient,
       child: Form(
         key: _formKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             SegmentedButton<UserRole>(
-              segments: const [
+              segments: [
                 ButtonSegment(
                   value: UserRole.patient,
-                  icon: Icon(Icons.person_outline),
-                  label: Text("I'm a patient"),
+                  icon: const Icon(Icons.person_outline),
+                  label: Text(l.iAmAPatient),
                 ),
                 ButtonSegment(
                   value: UserRole.doctor,
-                  icon: Icon(Icons.medical_services_outlined),
-                  label: Text("I'm a doctor"),
+                  icon: const Icon(Icons.medical_services_outlined),
+                  label: Text(l.iAmADoctor),
                 ),
               ],
               selected: {_role},
@@ -97,33 +100,33 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               controller: _name,
               textCapitalization: TextCapitalization.words,
               autofillHints: const [AutofillHints.name],
-              decoration: const InputDecoration(
-                hintText: 'Full name',
-                prefixIcon: Icon(Icons.badge_outlined),
+              decoration: InputDecoration(
+                hintText: l.fullName,
+                prefixIcon: const Icon(Icons.badge_outlined),
               ),
               validator: (v) =>
-                  v != null && v.trim().length >= 2 ? null : 'Enter your name',
+                  v != null && v.trim().length >= 2 ? null : l.enterName,
             ),
             const SizedBox(height: 14),
             TextFormField(
               controller: _email,
               keyboardType: TextInputType.emailAddress,
               autofillHints: const [AutofillHints.email],
-              decoration: const InputDecoration(
-                hintText: 'Email',
-                prefixIcon: Icon(Icons.mail_outline_rounded),
+              decoration: InputDecoration(
+                hintText: l.email,
+                prefixIcon: const Icon(Icons.mail_outline_rounded),
               ),
               validator: (v) =>
-                  v != null && v.contains('@') ? null : 'Enter a valid email',
+                  v != null && v.contains('@') ? null : l.enterValidEmail,
             ),
             const SizedBox(height: 14),
             TextFormField(
               controller: _phone,
               keyboardType: TextInputType.phone,
               autofillHints: const [AutofillHints.telephoneNumber],
-              decoration: const InputDecoration(
-                hintText: 'Phone (optional)',
-                prefixIcon: Icon(Icons.phone_outlined),
+              decoration: InputDecoration(
+                hintText: l.phoneOptional,
+                prefixIcon: const Icon(Icons.phone_outlined),
               ),
             ),
             const SizedBox(height: 14),
@@ -131,47 +134,44 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               controller: _password,
               obscureText: true,
               autofillHints: const [AutofillHints.newPassword],
-              decoration: const InputDecoration(
-                hintText: 'Password',
-                prefixIcon: Icon(Icons.lock_outline_rounded),
+              decoration: InputDecoration(
+                hintText: l.password,
+                prefixIcon: const Icon(Icons.lock_outline_rounded),
               ),
               validator: (v) =>
-                  v != null && v.length >= 8 ? null : 'At least 8 characters',
+                  v != null && v.length >= 8 ? null : l.atLeast8Chars,
             ),
             if (isDoctor) ...[
               const SizedBox(height: 14),
               DropdownButtonFormField<String>(
                 initialValue: _specialtyId,
                 decoration: InputDecoration(
-                  hintText: specialties.isLoading
-                      ? 'Loading specialties…'
-                      : 'Specialty',
+                  hintText:
+                      specialties.isLoading ? l.loadingSpecialties : l.specialty,
                   prefixIcon: const Icon(Icons.local_hospital_outlined),
-                  errorText: specialties.hasError
-                      ? 'Could not load specialties'
-                      : null,
+                  errorText:
+                      specialties.hasError ? l.couldNotLoadSpecialties : null,
                 ),
                 items: [
                   for (final s in specialties.value ?? const [])
                     DropdownMenuItem(value: s.id, child: Text(s.name)),
                 ],
                 onChanged: (v) => setState(() => _specialtyId = v),
-                validator: (v) => v == null ? 'Choose a specialty' : null,
+                validator: (v) => v == null ? l.chooseSpecialty : null,
               ),
               const SizedBox(height: 14),
               TextFormField(
                 controller: _license,
-                decoration: const InputDecoration(
-                  hintText: 'Medical license number',
-                  prefixIcon: Icon(Icons.verified_outlined),
+                decoration: InputDecoration(
+                  hintText: l.licenseNumber,
+                  prefixIcon: const Icon(Icons.verified_outlined),
                 ),
-                validator: (v) => v != null && v.trim().length >= 3
-                    ? null
-                    : 'License number is required',
+                validator: (v) =>
+                    v != null && v.trim().length >= 3 ? null : l.licenseRequired,
               ),
               const SizedBox(height: 8),
               Text(
-                "You'll upload your license and ID after signing up.",
+                l.uploadDocsLater,
                 style: Theme.of(context)
                     .textTheme
                     .bodySmall
@@ -193,12 +193,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         color: Colors.white,
                       ),
                     )
-                  : Text(isDoctor ? 'Submit for verification' : 'Create account'),
+                  : Text(isDoctor ? l.submitForVerification : l.createAccount),
             ),
             const SizedBox(height: 12),
             TextButton(
               onPressed: () => context.go(Routes.login),
-              child: const Text('Already have an account? Sign in'),
+              child: Text(l.haveAccountSignIn),
             ),
           ],
         ),

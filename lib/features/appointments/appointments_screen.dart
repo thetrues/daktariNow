@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../app/locale_controller.dart';
 import '../../app/router/app_router.dart';
 import '../../core/data/repositories.dart';
 import '../../core/models/consultation.dart';
@@ -24,13 +25,14 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> {
     final scope =
         _upcoming ? ConsultationScope.upcoming : ConsultationScope.past;
     final consultations = ref.watch(consultationsProvider(scope));
+    final l = context.l10n;
     return PageScaffold(
-      title: 'Appointments',
+      title: l.navAppointments,
       children: [
         SegmentedButton<bool>(
-          segments: const [
-            ButtonSegment(value: true, label: Text('Upcoming')),
-            ButtonSegment(value: false, label: Text('Past')),
+          segments: [
+            ButtonSegment(value: true, label: Text(l.upcoming)),
+            ButtonSegment(value: false, label: Text(l.past)),
           ],
           selected: {_upcoming},
           onSelectionChanged: (s) => setState(() => _upcoming = s.first),
@@ -46,13 +48,13 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> {
                 child: Column(
                   children: [
                     Text(_upcoming
-                        ? 'No upcoming appointments.'
-                        : 'No past appointments.'),
+                        ? l.noUpcomingAppointmentsDot
+                        : l.noPastAppointments),
                     if (_upcoming) ...[
                       const SizedBox(height: 12),
                       FilledButton(
                         onPressed: () => context.push(Routes.doctors),
-                        child: const Text('Find a doctor'),
+                        child: Text(l.findADoctor),
                       ),
                     ],
                   ],

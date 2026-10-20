@@ -4,10 +4,12 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../app/layout/breakpoints.dart';
+import '../../app/locale_controller.dart';
 import '../../app/router/app_router.dart';
 import '../../app/theme/app_colors.dart';
 import '../../core/data/repositories.dart';
 import '../../core/models/health.dart';
+import '../../l10n/app_localizations.dart';
 import '../../shared/widgets/common.dart';
 import '../../shared/widgets/consultation_card.dart';
 import '../../shared/widgets/mini_charts.dart';
@@ -25,6 +27,7 @@ class PatientHomeScreen extends ConsumerWidget {
     final user = ref.watch(currentUserProvider);
     final consultations =
         ref.watch(consultationsProvider(ConsultationScope.upcoming));
+    final l = context.l10n;
     final text = Theme.of(context).textTheme;
     final wide = !Breakpoints.isMobile(context);
 
@@ -32,12 +35,13 @@ class PatientHomeScreen extends ConsumerWidget {
       consultations.value ?? const [],
       ref.watch(prescriptionsProvider).value ?? const [],
       ref.watch(serviceRequestsProvider).value ?? const [],
+      l10n: context.l10n,
     ).length;
 
     final health = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        SectionHeader('Health Overview',
+        SectionHeader(l.healthOverview,
             onViewAll: () => context.push(Routes.health)),
         const _HealthOverview(),
       ],
@@ -46,7 +50,7 @@ class PatientHomeScreen extends ConsumerWidget {
     final upcoming = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        SectionHeader('Upcoming Appointment',
+        SectionHeader(l.upcomingAppointment,
             onViewAll: () => context.go(Routes.appointments)),
         AsyncView(
           value: consultations,
@@ -57,12 +61,12 @@ class PatientHomeScreen extends ConsumerWidget {
             if (next == null) {
               return AppCard(
                 onTap: () => context.push(Routes.doctors),
-                child: const ListTile(
+                child: ListTile(
                   contentPadding: EdgeInsets.zero,
-                  leading: Icon(Icons.event_available_rounded,
+                  leading: const Icon(Icons.event_available_rounded,
                       color: AppColors.primary),
-                  title: Text('No upcoming appointments'),
-                  subtitle: Text('Find a doctor and book one'),
+                  title: Text(l.noUpcomingAppointments),
+                  subtitle: Text(l.findAndBook),
                 ),
               );
             }
@@ -73,7 +77,7 @@ class PatientHomeScreen extends ConsumerWidget {
             );
           },
         ),
-        const SectionHeader('Quick Actions'),
+        SectionHeader(l.quickActions),
         const _QuickActions(),
       ],
     );
@@ -86,11 +90,11 @@ class PatientHomeScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Dashboard',
+                  Text(l.navDashboard,
                       style: text.titleLarge
                           ?.copyWith(fontWeight: FontWeight.w700)),
                   Text(
-                    'Good ${_greeting()}, ${user.firstName} 👋',
+                    _greeting(l, user.firstName),
                     style: text.bodyMedium
                         ?.copyWith(color: AppColors.textSecondary),
                   ),
@@ -98,7 +102,7 @@ class PatientHomeScreen extends ConsumerWidget {
               ),
             ),
             IconButton.filledTonal(
-              tooltip: 'Notifications',
+              tooltip: l.notifications,
               onPressed: () => context.push(Routes.notifications),
               icon: Badge(
                 isLabelVisible: unread > 0,
@@ -112,9 +116,9 @@ class PatientHomeScreen extends ConsumerWidget {
         TextField(
           readOnly: true,
           onTap: () => context.push(Routes.doctors),
-          decoration: const InputDecoration(
-            hintText: 'Search doctors, specialists...',
-            prefixIcon: Icon(Icons.search_rounded),
+          decoration: InputDecoration(
+            hintText: l.searchDoctorsHint,
+            prefixIcon: const Icon(Icons.search_rounded),
           ),
         ),
         if (wide)
@@ -136,11 +140,11 @@ class PatientHomeScreen extends ConsumerWidget {
     );
   }
 
-  static String _greeting() {
+  static String _greeting(AppLocalizations l, String name) {
     final h = DateTime.now().hour;
-    if (h < 12) return 'Morning';
-    if (h < 17) return 'Afternoon';
-    return 'Evening';
+    if (h < 12) return l.greetingMorning(name);
+    if (h < 17) return l.greetingAfternoon(name);
+    return l.greetingEvening(name);
   }
 }
 
@@ -150,6 +154,7 @@ class _HealthOverview extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
     final text = Theme.of(context).textTheme;
     final latest = ref.watch(latestVitalsProvider);
     final hrHistory = ref.watch(vitalHistoryProvider(VitalType.heartRate)).value ?? const [];
@@ -174,11 +179,10 @@ class _HealthOverview extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Track your health',
+                      Text(l.trackYourHealth,
                           style: text.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
                       Text(
-                        'Add heart rate, blood pressure or sugar readings. '
-                        'Your doctor sees them during consultations.',
+                        l.trackYourHealthBody,
                         style: text.bodySmall?.copyWith(color: AppColors.textSecondary),
                       ),
                     ],
@@ -208,7 +212,7 @@ class _HealthOverview extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Heart Rate',
+                        Text(VitalType.heartRate.label(l),
                             style: text.bodySmall?.copyWith(color: AppColors.textSecondary)),
                         Text.rich(
                           TextSpan(
@@ -233,7 +237,7 @@ class _HealthOverview extends ConsumerWidget {
                         else
                           Text(
                             hr == null
-                                ? 'No reading yet'
+                                ? l.noReadingYet
                                 : DateFormat('d MMM, h:mm a').format(hr.recordedAt),
                             style: text.labelSmall?.copyWith(color: AppColors.textMuted),
                           ),
@@ -279,15 +283,21 @@ class _VitalCard extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(type.label,
+                Text(type.label(context.l10n),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: text.bodySmall?.copyWith(color: AppColors.textSecondary)),
-                Text(reading?.display ?? 'Add',
-                    style: text.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: reading == null ? AppColors.primary : null,
-                    )),
+                // Scale down rather than wrap in narrow cards.
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Text(reading?.display ?? context.l10n.add,
+                      maxLines: 1,
+                      style: text.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: reading == null ? AppColors.primary : null,
+                      )),
+                ),
                 Text(type.unit,
                     style: text.labelSmall?.copyWith(color: AppColors.textMuted)),
               ],
@@ -304,14 +314,15 @@ class _QuickActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final actions = [
-      (Icons.biotech_outlined, 'Lab Test', AppColors.primary,
+      (Icons.biotech_outlined, l.labTest, AppColors.primary,
           AppColors.primarySoft, () => context.push(Routes.labTests)),
-      (Icons.medication_outlined, 'Medicines', AppColors.purple,
+      (Icons.medication_outlined, l.medicines, AppColors.purple,
           AppColors.purpleSoft, () => context.push(Routes.prescriptions)),
-      (Icons.description_outlined, 'Reports', AppColors.amber,
+      (Icons.description_outlined, l.reports, AppColors.amber,
           AppColors.amberSoft, () => context.go(Routes.records)),
-      (Icons.emergency_outlined, 'Emergency', AppColors.danger,
+      (Icons.emergency_outlined, l.emergency, AppColors.danger,
           AppColors.accentSoft, () => context.push(Routes.emergency)),
     ];
 
@@ -352,7 +363,7 @@ class _HomeServices extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        SectionHeader('Care at Home', onViewAll: () => context.push(Routes.services)),
+        SectionHeader(context.l10n.careAtHome, onViewAll: () => context.push(Routes.services)),
         SizedBox(
           height: 150,
           child: ListView.separated(

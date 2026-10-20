@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/auth_controller.dart';
 import '../../shared/widgets/avatar.dart';
 import '../../shared/widgets/brand_logo.dart';
+import '../locale_controller.dart';
 import '../theme/app_colors.dart';
 import 'breakpoints.dart';
 
@@ -262,11 +263,11 @@ class _SideBar extends ConsumerWidget {
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
                           subtitle: Text(
-                            user.isDoctor ? 'Doctor' : 'Patient',
+                            user.isDoctor ? context.l10n.doctor : context.l10n.patient,
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                           trailing: IconButton(
-                            tooltip: 'Sign out',
+                            tooltip: context.l10n.signOut,
                             icon: const Icon(Icons.logout_rounded, size: 20),
                             onPressed: () => ref
                                 .read(authControllerProvider.notifier)

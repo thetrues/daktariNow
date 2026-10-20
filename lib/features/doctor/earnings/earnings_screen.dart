@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../../app/layout/breakpoints.dart';
+import '../../../app/locale_controller.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../core/data/repositories.dart';
 import '../../../core/format.dart';
@@ -29,7 +30,7 @@ class EarningsScreen extends ConsumerWidget {
           .requestPayout(result.$1, result.$2);
       ref.invalidate(walletSummaryProvider);
       if (context.mounted) {
-        showInfo(context, 'Payout requested. An admin will process it soon.');
+        showInfo(context, context.l10n.payoutRequested);
       }
     } catch (e) {
       if (context.mounted) showError(context, e);
@@ -42,6 +43,7 @@ class EarningsScreen extends ConsumerWidget {
     final wide = !Breakpoints.isMobile(context);
     final summary = ref.watch(walletSummaryProvider);
     final transactions = ref.watch(walletTransactionsProvider);
+    final l = context.l10n;
 
     return RefreshIndicator(
       onRefresh: () async {
@@ -49,7 +51,7 @@ class EarningsScreen extends ConsumerWidget {
         ref.invalidate(walletTransactionsProvider);
       },
       child: PageScaffold(
-        title: 'Earnings',
+        title: l.navEarnings,
         children: [
           AsyncView(
             value: summary,
@@ -66,7 +68,7 @@ class EarningsScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Available balance',
+                    Text(l.availableBalance,
                         style: text.bodyMedium?.copyWith(color: Colors.white70)),
                     const SizedBox(height: 4),
                     Text(money(w.availableCents, w.currency),
@@ -75,9 +77,9 @@ class EarningsScreen extends ConsumerWidget {
                     const SizedBox(height: 4),
                     Text(
                       [
-                        'In escrow: ${money(w.inEscrowCents, w.currency)}',
+                        l.inEscrow(money(w.inEscrowCents, w.currency)),
                         if (w.pendingPayoutCents > 0)
-                          'Payout pending: ${money(w.pendingPayoutCents, w.currency)}',
+                          l.payoutPending(money(w.pendingPayoutCents, w.currency)),
                       ].join(' · '),
                       style: text.bodySmall?.copyWith(color: Colors.white70),
                     ),
@@ -92,20 +94,20 @@ class EarningsScreen extends ConsumerWidget {
                         minimumSize: const Size(180, 46),
                       ),
                       icon: const Icon(Icons.account_balance_rounded),
-                      label: const Text('Request payout'),
+                      label: Text(l.requestPayout),
                     ),
                   ],
                 ),
               );
               final tiles = Column(
                 children: [
-                  _summaryTile(context, 'This month',
+                  _summaryTile(context, l.thisMonth,
                       money(w.thisMonthCents, w.currency), Icons.trending_up),
                   const SizedBox(height: 12),
-                  _summaryTile(context, 'Completed consultations',
+                  _summaryTile(context, l.completedConsultations,
                       '${w.completedConsultations}', Icons.event_available),
                   const SizedBox(height: 12),
-                  _summaryTile(context, 'Platform commission',
+                  _summaryTile(context, l.platformCommission,
                       '${w.commissionBps / 100}%', Icons.percent),
                 ],
               );
@@ -123,15 +125,12 @@ class EarningsScreen extends ConsumerWidget {
                   : Column(children: [balance, const SizedBox(height: 12), tiles]);
             },
           ),
-          const SectionHeader('Recent transactions'),
+          SectionHeader(l.recentTransactions),
           AsyncView(
             value: transactions,
             onRetry: () => ref.invalidate(walletTransactionsProvider),
             builder: (items) => items.isEmpty
-                ? const AppCard(
-                    child: Text('Earnings appear here when you complete '
-                        'consultations.'),
-                  )
+                ? AppCard(child: Text(l.earningsAppearHere))
                 : AppCard(
                     padding: EdgeInsets.zero,
                     child: Column(
@@ -235,8 +234,9 @@ class _PayoutDialogState extends State<_PayoutDialog> {
   @override
   Widget build(BuildContext context) {
     final w = widget.summary;
+    final l = context.l10n;
     return AlertDialog(
-      title: const Text('Request payout'),
+      title: Text(l.requestPayout),
       content: SizedBox(
         width: 400,
         child: Form(
@@ -253,31 +253,30 @@ class _PayoutDialogState extends State<_PayoutDialog> {
                   FilteringTextInputFormatter.allow(moneyInputPattern(w.currency)),
                 ],
                 decoration: InputDecoration(
-                  labelText: 'Amount',
+                  labelText: l.amount,
                   prefixText: '${currencySymbol(w.currency)} ',
-                  helperText: 'Available: ${money(w.availableCents, w.currency)}'
-                      ' · minimum ${money(w.minPayoutCents, w.currency)}',
+                  helperText: l.payoutHelper(money(w.availableCents, w.currency),
+                      money(w.minPayoutCents, w.currency)),
                 ),
                 validator: (v) {
                   final minor = parseMoney(v ?? '', w.currency);
-                  if (minor == null) return 'Enter an amount';
+                  if (minor == null) return l.enterAmount;
                   if (minor < w.minPayoutCents) {
-                    return 'Minimum is ${money(w.minPayoutCents, w.currency)}';
+                    return l.minimumIs(money(w.minPayoutCents, w.currency));
                   }
-                  if (minor > w.availableCents) return 'More than available';
+                  if (minor > w.availableCents) return l.moreThanAvailable;
                   return null;
                 },
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _destination,
-                decoration: const InputDecoration(
-                  labelText: 'Send to',
-                  hintText: 'M-Pesa, Tigo Pesa, Airtel Money or bank',
+                decoration: InputDecoration(
+                  labelText: l.sendTo,
+                  hintText: l.sendToHint,
                 ),
-                validator: (v) => (v?.trim().length ?? 0) < 4
-                    ? 'Where should we send the money?'
-                    : null,
+                validator: (v) =>
+                    (v?.trim().length ?? 0) < 4 ? l.whereSendMoney : null,
               ),
             ],
           ),
@@ -286,9 +285,9 @@ class _PayoutDialogState extends State<_PayoutDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: Text(l.cancel),
         ),
-        FilledButton(onPressed: _submit, child: const Text('Request')),
+        FilledButton(onPressed: _submit, child: Text(l.request)),
       ],
     );
   }

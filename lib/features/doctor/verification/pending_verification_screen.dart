@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/locale_controller.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../core/api/api_errors.dart';
 import '../../../core/models/app_user.dart';
 import '../../../shared/widgets/common.dart';
+import '../../../shared/widgets/language_switcher.dart';
 import '../../auth/auth_controller.dart';
 import '../../profile/profile_forms.dart';
 import '../doctor_providers.dart';
@@ -31,7 +33,7 @@ class _PendingVerificationScreenState
       final user = ref.read(authControllerProvider).user;
       if (mounted && user != null && !user.isVerifiedDoctor) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Still under review.')),
+          SnackBar(content: Text(context.l10n.stillUnderReview)),
         );
       }
     } catch (e) {
@@ -55,21 +57,23 @@ class _PendingVerificationScreenState
     final reason = profile.value?['rejectionReason'] as String?;
     final docCount = (profile.value?['documents'] as List?)?.length ?? 0;
     final text = Theme.of(context).textTheme;
+    final l = context.l10n;
 
     final steps = [
-      ('Account created', true),
-      ('Upload license & national ID', docCount > 0),
-      ('Admin review (1–2 business days)', false),
-      ('Start consulting & earning', false),
+      (l.stepAccountCreated, true),
+      (l.stepUploadDocs, docCount > 0),
+      (l.stepAdminReview, false),
+      (l.stepStartConsulting, false),
     ];
 
     return PageScaffold(
-      title: 'Verification',
+      title: l.verification,
       actions: [
+        const LanguageSwitcher(),
         TextButton.icon(
           onPressed: () => ref.read(authControllerProvider.notifier).signOut(),
           icon: const Icon(Icons.logout_rounded),
-          label: const Text('Sign out'),
+          label: Text(l.signOut),
         ),
       ],
       children: [
@@ -87,20 +91,16 @@ class _PendingVerificationScreenState
         const SizedBox(height: 20),
         Text(
           switch (status) {
-            VerificationStatus.rejected => 'Verification declined',
-            VerificationStatus.suspended => 'Account suspended',
-            _ => 'Your profile is under review',
+            VerificationStatus.rejected => l.verificationDeclined,
+            VerificationStatus.suspended => l.accountSuspended,
+            _ => l.profileUnderReview,
           },
           textAlign: TextAlign.center,
           style: text.titleLarge?.copyWith(fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 8),
         Text(
-          blocked
-              ? 'Hi ${user.name}, please contact support if you think this '
-                  'is a mistake.'
-              : 'Hi ${user.name}, our team verifies every doctor before they '
-                  "can accept consultations. We'll let you know when you're approved.",
+          blocked ? l.blockedBody(user.name) : l.reviewBody(user.name),
           textAlign: TextAlign.center,
           style: text.bodyMedium?.copyWith(color: AppColors.textSecondary),
         ),
@@ -109,7 +109,7 @@ class _PendingVerificationScreenState
           _Narrow(
             child: AppCard(
               color: AppColors.accentSoft,
-              child: Text('Reason: $reason'),
+              child: Text(l.reasonValue(reason)),
             ),
           ),
         ],
@@ -142,10 +142,10 @@ class _PendingVerificationScreenState
               FilledButton.icon(
                 onPressed: _checking ? null : _check,
                 icon: const Icon(Icons.refresh_rounded),
-                label: const Text('Check status'),
+                label: Text(l.checkStatus),
               ),
               if (!blocked) ...[
-                const SectionHeader('Your documents'),
+                SectionHeader(l.yourDocuments),
                 const DoctorDocuments(),
               ],
             ],

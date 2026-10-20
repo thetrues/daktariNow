@@ -4,11 +4,14 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../app/locale_controller.dart';
 import '../../app/router/app_router.dart';
 import '../../app/theme/app_colors.dart';
+import '../../core/api/api_errors.dart';
 import '../../core/data/repositories.dart';
 import '../../core/models/consultation.dart';
 import '../../core/models/health.dart';
+import '../../l10n/app_localizations.dart';
 import '../../shared/widgets/common.dart';
 import '../appointments/appointment_providers.dart';
 import '../auth/auth_controller.dart';
@@ -36,18 +39,19 @@ class PrescriptionsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final text = Theme.of(context).textTheme;
     final muted = text.bodySmall?.copyWith(color: AppColors.textSecondary);
+    final l = context.l10n;
     return PageScaffold(
-      title: 'My Medicines',
+      title: l.myMedicines,
       showBack: true,
       children: [
         AsyncView(
           value: ref.watch(prescriptionsProvider),
           onRetry: () => ref.invalidate(prescriptionsProvider),
           builder: (list) => list.isEmpty
-              ? const _Empty(
+              ? _Empty(
                   icon: Icons.medication_outlined,
-                  title: 'No prescriptions yet',
-                  body: 'Medicines your doctor prescribes during a consultation appear here.',
+                  title: l.noPrescriptionsYet,
+                  body: l.noPrescriptionsBody,
                 )
               : Column(
                   children: [
@@ -103,8 +107,7 @@ class PrescriptionsScreen extends ConsumerWidget {
                         ),
                       ),
                     Text(
-                      'Take medicines only as your doctor directed. Pharmacies '
-                      'may ask to see this prescription.',
+                      l.takeAsDirected,
                       style: text.bodySmall?.copyWith(color: AppColors.textMuted),
                     ),
                   ],
@@ -128,40 +131,40 @@ class LabTestsScreen extends ConsumerWidget {
               (s) => s.name.toLowerCase().contains('sample'),
             ) ??
         false;
+    final l = context.l10n;
 
     return PageScaffold(
-      title: 'Lab Tests',
+      title: l.labTests,
       showBack: true,
       children: [
         AsyncView(
           value: ref.watch(labRequestsProvider),
           onRetry: () => ref.invalidate(labRequestsProvider),
           builder: (list) => list.isEmpty
-              ? const _Empty(
+              ? _Empty(
                   icon: Icons.biotech_outlined,
-                  title: 'No lab tests requested',
-                  body: 'When a doctor requests tests for you, they appear here. '
-                      'Upload your results under Records.',
+                  title: l.noLabTests,
+                  body: l.noLabTestsBody,
                 )
               : AppCard(
                   padding: EdgeInsets.zero,
                   child: Column(
                     children: [
-                      for (final l in list)
+                      for (final r in list)
                         ListTile(
                           leading: const IconBadge(icon: Icons.biotech_outlined, size: 40),
-                          title: Text(l.testName,
+                          title: Text(r.testName,
                               style: text.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
                           subtitle: Text(
-                            'Requested by ${l.doctorName} · '
-                            '${DateFormat('d MMM yyyy').format(l.createdAt)}',
+                            l.requestedBy(r.doctorName,
+                                DateFormat('d MMM yyyy').format(r.createdAt)),
                             style: muted,
                           ),
                           trailing: _StatusPill(
-                            l.status == 'REQUESTED' ? 'To do' : _title(l.status),
-                            done: l.status == 'COMPLETED',
+                            labStatusLabel(l, r.status),
+                            done: r.status == 'COMPLETED',
                           ),
-                          onTap: () => context.push(Routes.consultation(l.consultationId)),
+                          onTap: () => context.push(Routes.consultation(r.consultationId)),
                         ),
                     ],
                   ),
@@ -171,12 +174,12 @@ class LabTestsScreen extends ConsumerWidget {
         if (hasSampleCollection)
           AppCard(
             onTap: () => context.push(Routes.services),
-            child: const ListTile(
+            child: ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: IconBadge(icon: Icons.home_outlined),
-              title: Text('Get samples collected at home'),
-              subtitle: Text('Request home sample collection'),
-              trailing: Icon(Icons.chevron_right_rounded),
+              leading: const IconBadge(icon: Icons.home_outlined),
+              title: Text(l.samplesAtHome),
+              subtitle: Text(l.requestSampleCollection),
+              trailing: const Icon(Icons.chevron_right_rounded),
             ),
           ),
         const SizedBox(height: 24),
@@ -184,9 +187,16 @@ class LabTestsScreen extends ConsumerWidget {
     );
   }
 
-  static String _title(String s) =>
-      s[0] + s.substring(1).toLowerCase().replaceAll('_', ' ');
 }
+
+/// Lab request statuses from the API (LabRequestStatus).
+String labStatusLabel(AppLocalizations l, String status) => switch (status) {
+      'REQUESTED' => l.labToDo,
+      'SAMPLE_COLLECTED' => l.labSampleCollected,
+      'COMPLETED' => l.statusCompleted,
+      'CANCELLED' => l.statusCancelled,
+      _ => status,
+    };
 
 /// Tanzania's national emergency number. Confirm before launch.
 const emergencyNumber = '112';
@@ -197,15 +207,16 @@ class EmergencyScreen extends StatelessWidget {
   Future<void> _call(BuildContext context) async {
     final ok = await launchUrl(Uri(scheme: 'tel', path: emergencyNumber));
     if (!ok && context.mounted) {
-      showInfo(context, 'Dial $emergencyNumber from your phone.');
+      showInfo(context, context.l10n.dialFromPhone(emergencyNumber));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
+    final l = context.l10n;
     return PageScaffold(
-      title: 'Emergency',
+      title: l.emergency,
       showBack: true,
       children: [
         AppCard(
@@ -219,13 +230,11 @@ class EmergencyScreen extends StatelessWidget {
                 size: 72,
               ),
               const SizedBox(height: 16),
-              Text('Is this an emergency?',
+              Text(l.isThisEmergency,
                   style: text.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
               const SizedBox(height: 8),
               Text(
-                'DaktariNow is not an emergency service. If someone has severe '
-                'chest pain, trouble breathing, heavy bleeding, a seizure, or is '
-                'unconscious, call for help now or go to the nearest hospital.',
+                l.emergencyBody,
                 textAlign: TextAlign.center,
                 style: text.bodyMedium,
               ),
@@ -236,21 +245,21 @@ class EmergencyScreen extends StatelessWidget {
                   style: FilledButton.styleFrom(backgroundColor: AppColors.danger),
                   onPressed: () => _call(context),
                   icon: const Icon(Icons.call_rounded),
-                  label: const Text('Call $emergencyNumber'),
+                  label: Text(l.callNumber(emergencyNumber)),
                 ),
               ),
             ],
           ),
         ),
-        const SectionHeader('While you wait'),
-        const AppCard(
+        SectionHeader(l.whileYouWait),
+        AppCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _Step('Stay with the person and keep them calm.'),
-              _Step('Do not give food or drink if they are drowsy or unconscious.'),
-              _Step('Have their medicines and any medical records ready.'),
-              _Step('Send someone to meet the ambulance if you can.'),
+              _Step(l.waitStep1),
+              _Step(l.waitStep2),
+              _Step(l.waitStep3),
+              _Step(l.waitStep4),
             ],
           ),
         ),
@@ -291,15 +300,17 @@ class NotificationsScreen extends ConsumerWidget {
     final upcoming = ref.watch(consultationsProvider(ConsultationScope.upcoming));
     final prescriptions = ref.watch(prescriptionsProvider);
     final requests = ref.watch(serviceRequestsProvider);
+    final l = context.l10n;
     final items = buildNotifications(
       upcoming.value ?? const [],
       prescriptions.value ?? const [],
       requests.value ?? const [],
+      l10n: l,
     );
     final loading = upcoming.isLoading || prescriptions.isLoading || requests.isLoading;
 
     return PageScaffold(
-      title: 'Notifications',
+      title: l.notifications,
       showBack: true,
       children: [
         if (loading && items.isEmpty)
@@ -308,10 +319,10 @@ class NotificationsScreen extends ConsumerWidget {
             child: Center(child: CircularProgressIndicator()),
           )
         else if (items.isEmpty)
-          const _Empty(
+          _Empty(
             icon: Icons.notifications_none_rounded,
-            title: 'You are all caught up',
-            body: 'Appointment reminders, prescriptions and home-service updates show here.',
+            title: l.allCaughtUp,
+            body: l.allCaughtUpBody,
           )
         else
           AppCard(
@@ -353,29 +364,32 @@ List<AppNotification> buildNotifications(
   List<PatientPrescription> prescriptions,
   List<ServiceRequest> requests, {
   DateTime? now,
+  AppLocalizations? l10n,
 }) {
+  final l = l10n ?? currentL10n;
   final t = now ?? DateTime.now();
   final fmt = DateFormat('EEE d MMM, h:mm a');
   final list = <AppNotification>[
     for (final c in upcoming)
       if (c.status == ConsultationStatus.inProgress)
-        AppNotification('${c.doctorName} has started your consultation',
-            'Tap to join', c.type.icon, AppColors.success,
+        AppNotification(l.notifStarted(c.doctorName),
+            l.tapToJoin, c.type.icon, AppColors.success,
             Routes.consultation(c.id), c.scheduledAt)
       else if (c.scheduledAt.isAfter(t) &&
           c.scheduledAt.difference(t) <= const Duration(hours: 48))
-        AppNotification('Upcoming: ${c.type.label} with ${c.doctorName}',
+        AppNotification(l.notifUpcoming(c.type.label(l), c.doctorName),
             fmt.format(c.scheduledAt), Icons.event_rounded, AppColors.primary,
             Routes.consultation(c.id), c.scheduledAt),
     for (final p in prescriptions)
       if (t.difference(p.createdAt) <= const Duration(days: 14))
-        AppNotification('New prescription from ${p.doctorName}',
+        AppNotification(l.notifPrescription(p.doctorName),
             p.items.map((i) => i.medicine).join(', '),
             Icons.medication_rounded, AppColors.purple, Routes.prescriptions, p.createdAt),
     for (final r in requests)
       if (r.status != ServiceRequestStatus.requested &&
           t.difference(r.updatedAt) <= const Duration(days: 14))
-        AppNotification('${r.serviceName}: ${r.status.label.toLowerCase()}',
+        AppNotification(
+            l.notifServiceUpdate(r.serviceName, r.status.label(l).toLowerCase()),
             r.adminNote ?? fmt.format(r.preferredAt),
             Icons.home_outlined, AppColors.amber, Routes.serviceRequests, r.updatedAt),
   ]..sort((a, b) => b.at.compareTo(a.at));

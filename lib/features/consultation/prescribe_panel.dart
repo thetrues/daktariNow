@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/locale_controller.dart';
 import '../../app/theme/app_colors.dart';
 import '../../core/data/repositories.dart';
 import '../../core/models/consultation.dart';
@@ -52,7 +53,9 @@ class _PrescribePanelState extends ConsumerState<PrescribePanel> {
     setState(() {
       _items.add(PrescriptionItem(
         medicine: _medicine.text.trim(),
-        dosage: _dosage.text.trim().isEmpty ? 'As directed' : _dosage.text.trim(),
+        dosage: _dosage.text.trim().isEmpty
+            ? context.l10n.asDirected
+            : _dosage.text.trim(),
         duration: _duration.text.trim().isEmpty ? '—' : _duration.text.trim(),
       ));
       _medicine.clear();
@@ -71,7 +74,7 @@ class _PrescribePanelState extends ConsumerState<PrescribePanel> {
       }
       if (_labs.isNotEmpty) await repo.requestLabs(_id, _labs.toList());
       if (!mounted) return;
-      showInfo(context, 'Sent to patient');
+      showInfo(context, context.l10n.sentToPatient);
       setState(() {
         _items.clear();
         _labs.clear();
@@ -87,6 +90,7 @@ class _PrescribePanelState extends ConsumerState<PrescribePanel> {
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
+    final l = context.l10n;
     final title = text.titleSmall?.copyWith(fontWeight: FontWeight.w700);
     final d = widget.detail;
     final active = d.consultation.status == ConsultationStatus.inProgress;
@@ -102,12 +106,12 @@ class _PrescribePanelState extends ConsumerState<PrescribePanel> {
               color: AppColors.amberSoft,
               child: Text(
                 d.consultation.status == ConsultationStatus.booked
-                    ? 'Start the consultation to prescribe or request labs.'
-                    : 'This consultation has ended.',
+                    ? l.startToPrescribe
+                    : l.consultationEnded,
               ),
             ),
           ),
-        Text('Prescription', style: title),
+        Text(l.prescription, style: title),
         const SizedBox(height: 8),
         if (d.hasPrescription) ...[
           PrescriptionSummary(detail: d),
@@ -136,7 +140,7 @@ class _PrescribePanelState extends ConsumerState<PrescribePanel> {
                       ),
                     ),
                     IconButton(
-                      tooltip: 'Remove',
+                      tooltip: l.remove,
                       icon: const Icon(Icons.close_rounded, size: 18),
                       onPressed: () => setState(() => _items.removeAt(i)),
                     ),
@@ -147,7 +151,7 @@ class _PrescribePanelState extends ConsumerState<PrescribePanel> {
           TextField(
             controller: _medicine,
             enabled: active,
-            decoration: const InputDecoration(hintText: 'Medicine & strength'),
+            decoration: InputDecoration(hintText: l.medicineStrength),
           ),
           const SizedBox(height: 8),
           Row(
@@ -156,7 +160,7 @@ class _PrescribePanelState extends ConsumerState<PrescribePanel> {
                 child: TextField(
                   controller: _dosage,
                   enabled: active,
-                  decoration: const InputDecoration(hintText: 'Dosage, e.g. 1×2'),
+                  decoration: InputDecoration(hintText: l.dosageHint),
                 ),
               ),
               const SizedBox(width: 8),
@@ -165,7 +169,7 @@ class _PrescribePanelState extends ConsumerState<PrescribePanel> {
                   controller: _duration,
                   enabled: active,
                   onSubmitted: (_) => _addItem(),
-                  decoration: const InputDecoration(hintText: 'Duration'),
+                  decoration: InputDecoration(hintText: l.durationHint),
                 ),
               ),
             ],
@@ -174,19 +178,18 @@ class _PrescribePanelState extends ConsumerState<PrescribePanel> {
           OutlinedButton.icon(
             onPressed: active ? _addItem : null,
             icon: const Icon(Icons.add_rounded),
-            label: const Text('Add medicine'),
+            label: Text(l.addMedicine),
           ),
           const SizedBox(height: 12),
           TextField(
             controller: _notes,
             enabled: active,
             maxLines: 2,
-            decoration:
-                const InputDecoration(hintText: 'Notes for the patient (optional)'),
+            decoration: InputDecoration(hintText: l.notesForPatient),
           ),
         ],
         const SizedBox(height: 20),
-        Text('Lab tests', style: title),
+        Text(l.labTests, style: title),
         const SizedBox(height: 8),
         Wrap(
           spacing: 8,
@@ -207,7 +210,7 @@ class _PrescribePanelState extends ConsumerState<PrescribePanel> {
         ),
         if (requested.isNotEmpty) ...[
           const SizedBox(height: 8),
-          Text('Already requested: ${requested.join(', ')}',
+          Text(l.alreadyRequested(requested.join(', ')),
               style: text.bodySmall?.copyWith(color: AppColors.textSecondary)),
         ],
         const SizedBox(height: 24),
@@ -218,7 +221,7 @@ class _PrescribePanelState extends ConsumerState<PrescribePanel> {
               ? null
               : _send,
           icon: const Icon(Icons.send_rounded),
-          label: const Text('Send to patient'),
+          label: Text(l.sendToPatient),
         ),
       ],
     );
@@ -255,7 +258,7 @@ class PrescriptionSummary extends StatelessWidget {
             ),
           if (detail.labRequests.isNotEmpty) ...[
             if (detail.prescriptionItems.isNotEmpty) const Divider(height: 20),
-            Text('Lab tests requested',
+            Text(context.l10n.labTestsRequested,
                 style: text.labelLarge?.copyWith(fontWeight: FontWeight.w600)),
             const SizedBox(height: 6),
             Wrap(

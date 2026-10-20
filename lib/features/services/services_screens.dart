@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../app/locale_controller.dart';
 import '../../app/router/app_router.dart';
 import '../../app/theme/app_colors.dart';
 import '../../core/data/repositories.dart';
@@ -26,19 +27,19 @@ class ServicesScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final text = Theme.of(context).textTheme;
+    final l = context.l10n;
     return PageScaffold(
-      title: 'Home Services',
+      title: l.homeServices,
       showBack: true,
       actions: [
         TextButton(
           onPressed: () => context.push(Routes.serviceRequests),
-          child: const Text('My requests'),
+          child: Text(l.myRequests),
         ),
       ],
       children: [
         Text(
-          'Care at your door. Request a service and our team will call you to '
-          'confirm the time.',
+          l.homeServicesIntro,
           style: text.bodyMedium?.copyWith(color: AppColors.textSecondary),
         ),
         const SizedBox(height: 16),
@@ -46,7 +47,7 @@ class ServicesScreen extends ConsumerWidget {
           value: ref.watch(servicesProvider),
           onRetry: () => ref.invalidate(servicesProvider),
           builder: (services) => services.isEmpty
-              ? const AppCard(child: Text('No home services are available right now.'))
+              ? AppCard(child: Text(l.noHomeServices))
               : ResponsiveGrid(
                   minItemWidth: 320,
                   children: [
@@ -100,7 +101,7 @@ class ServiceCard extends StatelessWidget {
               alignment: Alignment.centerRight,
               child: FilledButton.tonal(
                 onPressed: () => context.push(Routes.requestService(service.id)),
-                child: const Text('Request'),
+                child: Text(context.l10n.request),
               ),
             ),
           ],
@@ -155,7 +156,7 @@ class _RequestServiceScreenState extends ConsumerState<RequestServiceScreen> {
   Future<void> _submit(Service service) async {
     if (!_formKey.currentState!.validate()) return;
     if (_when == null) {
-      showInfo(context, 'Choose a preferred date and time.');
+      showInfo(context, context.l10n.choosePreferredTime);
       return;
     }
     setState(() => _sending = true);
@@ -169,7 +170,7 @@ class _RequestServiceScreenState extends ConsumerState<RequestServiceScreen> {
           );
       ref.invalidate(serviceRequestsProvider);
       if (!mounted) return;
-      showInfo(context, 'Request sent. Our team will call you to confirm.');
+      showInfo(context, context.l10n.requestSent);
       // Replace the form so Back goes to the services list, not the form.
       context.pushReplacement(Routes.serviceRequests);
     } catch (e) {
@@ -184,16 +185,17 @@ class _RequestServiceScreenState extends ConsumerState<RequestServiceScreen> {
     final services = ref.watch(servicesProvider);
     final service = services.value?.where((s) => s.id == widget.serviceId).firstOrNull;
     final text = Theme.of(context).textTheme;
+    final l = context.l10n;
 
     if (service == null) {
       return PageScaffold(
-        title: 'Request service',
+        title: l.requestService,
         showBack: true,
         children: [
           AsyncView(
             value: services,
             onRetry: () => ref.invalidate(servicesProvider),
-            builder: (_) => const AppCard(child: Text('This service is no longer available.')),
+            builder: (_) => AppCard(child: Text(l.serviceUnavailable)),
           ),
         ],
       );
@@ -204,7 +206,7 @@ class _RequestServiceScreenState extends ConsumerState<RequestServiceScreen> {
       showBack: true,
       bottom: FilledButton(
         onPressed: _sending ? null : () => _submit(service),
-        child: Text('Request · ${money(service.priceCents, service.currency)}'),
+        child: Text(l.requestWithPrice(money(service.priceCents, service.currency))),
       ),
       children: [
         ConstrainedBox(
@@ -217,30 +219,28 @@ class _RequestServiceScreenState extends ConsumerState<RequestServiceScreen> {
                 if (service.description.isNotEmpty)
                   Text(service.description,
                       style: text.bodyMedium?.copyWith(color: AppColors.textSecondary)),
-                const SectionHeader('Where should we come?'),
+                SectionHeader(l.whereShouldWeCome),
                 TextFormField(
                   controller: _address,
                   maxLines: 2,
                   textCapitalization: TextCapitalization.sentences,
-                  decoration: const InputDecoration(
-                    hintText: 'House / plot, street, area, city and a landmark',
-                  ),
+                  decoration: InputDecoration(hintText: l.addressHint),
                   validator: (v) =>
-                      (v?.trim().length ?? 0) < 5 ? 'Enter your full address' : null,
+                      (v?.trim().length ?? 0) < 5 ? l.enterFullAddress : null,
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _phone,
                   keyboardType: TextInputType.phone,
-                  decoration: const InputDecoration(
-                    hintText: 'Phone number, e.g. +255 7XX XXX XXX',
-                    prefixIcon: Icon(Icons.phone_outlined),
+                  decoration: InputDecoration(
+                    hintText: l.phoneHint,
+                    prefixIcon: const Icon(Icons.phone_outlined),
                   ),
                   validator: (v) => RegExp(r'^\+?[0-9 ]{9,16}$').hasMatch(v?.trim() ?? '')
                       ? null
-                      : 'Enter a valid phone number',
+                      : l.enterValidPhone,
                 ),
-                const SectionHeader('When?'),
+                SectionHeader(l.when),
                 AppCard(
                   onTap: _pickWhen,
                   child: Row(
@@ -250,7 +250,7 @@ class _RequestServiceScreenState extends ConsumerState<RequestServiceScreen> {
                       Expanded(
                         child: Text(
                           _when == null
-                              ? 'Choose a preferred date and time'
+                              ? l.choosePreferredTimeNoDot
                               : DateFormat('EEEE d MMMM, h:mm a').format(_when!),
                         ),
                       ),
@@ -258,18 +258,15 @@ class _RequestServiceScreenState extends ConsumerState<RequestServiceScreen> {
                     ],
                   ),
                 ),
-                const SectionHeader('Notes for the team (optional)'),
+                SectionHeader(l.notesForTeam),
                 TextFormField(
                   controller: _notes,
                   maxLines: 3,
                   maxLength: 1000,
-                  decoration: const InputDecoration(
-                    hintText: 'Who is the patient, symptoms, access instructions…',
-                  ),
+                  decoration: InputDecoration(hintText: l.notesForTeamHint),
                 ),
                 Text(
-                  'You pay when the service is confirmed. The price shown is the '
-                  'standard price; the team will tell you about any extra costs first.',
+                  l.payWhenConfirmed,
                   style: text.bodySmall?.copyWith(color: AppColors.textMuted),
                 ),
               ],
@@ -286,16 +283,17 @@ class ServiceRequestsScreen extends ConsumerWidget {
   const ServiceRequestsScreen({super.key});
 
   Future<void> _cancel(BuildContext context, WidgetRef ref, ServiceRequest r) async {
+    final l = context.l10n;
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Cancel this request?'),
+        title: Text(l.cancelRequestQ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Keep')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l.keep)),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: AppColors.danger),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Cancel request'),
+            child: Text(l.cancelRequest),
           ),
         ],
       ),
@@ -313,8 +311,9 @@ class ServiceRequestsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final text = Theme.of(context).textTheme;
     final muted = text.bodySmall?.copyWith(color: AppColors.textSecondary);
+    final l = context.l10n;
     return PageScaffold(
-      title: 'My Home Service Requests',
+      title: l.myHomeServiceRequests,
       showBack: true,
       children: [
         AsyncView(
@@ -323,12 +322,12 @@ class ServiceRequestsScreen extends ConsumerWidget {
           builder: (list) => list.isEmpty
               ? AppCard(
                   onTap: () => context.push(Routes.services),
-                  child: const ListTile(
+                  child: ListTile(
                     contentPadding: EdgeInsets.zero,
-                    leading: IconBadge(icon: Icons.home_outlined),
-                    title: Text('No requests yet'),
-                    subtitle: Text('Browse home services'),
-                    trailing: Icon(Icons.chevron_right_rounded),
+                    leading: const IconBadge(icon: Icons.home_outlined),
+                    title: Text(l.noRequestsYet),
+                    subtitle: Text(l.browseHomeServices),
+                    trailing: const Icon(Icons.chevron_right_rounded),
                   ),
                 )
               : Column(
@@ -370,7 +369,7 @@ class ServiceRequestsScreen extends ConsumerWidget {
                                     color: AppColors.primarySoft,
                                     borderRadius: BorderRadius.circular(10),
                                   ),
-                                  child: Text('From DaktariNow: ${r.adminNote}'),
+                                  child: Text(l.fromDaktariNow(r.adminNote!)),
                                 ),
                               ],
                               Row(
@@ -382,7 +381,7 @@ class ServiceRequestsScreen extends ConsumerWidget {
                                       style: TextButton.styleFrom(
                                           foregroundColor: AppColors.danger),
                                       onPressed: () => _cancel(context, ref, r),
-                                      child: const Text('Cancel'),
+                                      child: Text(l.cancel),
                                     ),
                                 ],
                               ),
@@ -415,7 +414,7 @@ class _RequestStatus extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(12)),
-      child: Text(status.label,
+      child: Text(status.label(context.l10n),
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
                 color: fg,
                 fontWeight: FontWeight.w600,

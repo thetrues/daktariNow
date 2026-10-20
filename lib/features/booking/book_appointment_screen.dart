@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../app/layout/breakpoints.dart';
+import '../../app/locale_controller.dart';
 import '../../app/router/app_router.dart';
 import '../../app/theme/app_colors.dart';
 import '../../core/api/api_errors.dart';
@@ -68,22 +69,26 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
           );
       refreshConsultations(ref);
       if (!mounted) return;
+      final l = context.l10n;
       await showDialog<void>(
         context: context,
         builder: (ctx) => AlertDialog(
           icon: const Icon(Icons.check_circle_rounded,
               color: AppColors.success, size: 48),
-          title: const Text('Booking confirmed'),
+          title: Text(l.bookingConfirmed),
           content: Text(
-            '${_type.label} with ${doctor.name}\n'
-            '${DateFormat('EEE d MMM, h:mm a').format(when)}\n'
-            'Paid ${money(doctor.feeCents, doctor.currency)}',
+            l.bookingConfirmedBody(
+              _type.label(l),
+              doctor.name,
+              DateFormat('EEE d MMM, h:mm a').format(when),
+              money(doctor.feeCents, doctor.currency),
+            ),
             textAlign: TextAlign.center,
           ),
           actions: [
             FilledButton(
               onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('Done'),
+              child: Text(l.done),
             ),
           ],
         ),
@@ -122,6 +127,7 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
   }
 
   Widget _buildForm(Doctor doctor) {
+    final l = context.l10n;
     final text = Theme.of(context).textTheme;
     final wide = !Breakpoints.isMobile(context);
     final slots = ref.watch(slotsProvider(_slotKey));
@@ -130,7 +136,7 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _DoctorHeader(doctor: doctor),
-        const SectionHeader('Consultation Type'),
+        SectionHeader(l.consultationType),
         SegmentedButton<ConsultationType>(
           segments: [
             for (final t in const [
@@ -138,12 +144,13 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
               ConsultationType.voice,
               ConsultationType.video,
             ])
-              ButtonSegment(value: t, icon: Icon(t.icon), label: Text(t.label)),
+              ButtonSegment(
+                  value: t, icon: Icon(t.icon), label: Text(t.label(l))),
           ],
           selected: {_type},
           onSelectionChanged: (s) => setState(() => _type = s.first),
         ),
-        const SectionHeader('Select Date'),
+        SectionHeader(l.selectDate),
         SizedBox(
           height: 76,
           child: ListView.separated(
@@ -179,14 +186,14 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
             },
           ),
         ),
-        const SectionHeader('Select Time'),
+        SectionHeader(l.selectTime),
         AsyncView(
           value: slots,
           onRetry: () => ref.invalidate(slotsProvider(_slotKey)),
           builder: (times) => times.isEmpty
               ? AppCard(
                   child: Text(
-                    'No free times on this day. Try another date.',
+                    l.noFreeTimes,
                     style: text.bodyMedium
                         ?.copyWith(color: AppColors.textSecondary),
                   ),
@@ -219,14 +226,12 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                   },
                 ),
         ),
-        const SectionHeader('Reason for visit'),
+        SectionHeader(l.reasonForVisit),
         TextField(
           controller: _reason,
           maxLines: 2,
           maxLength: 500,
-          decoration: const InputDecoration(
-            hintText: 'Briefly describe your symptoms (optional)',
-          ),
+          decoration: InputDecoration(hintText: l.reasonHint),
         ),
       ],
     );
@@ -234,23 +239,23 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
     final summary = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const SectionHeader('Appointment Summary'),
+        SectionHeader(l.appointmentSummary),
         AppCard(
           child: Column(
             children: [
-              _summaryRow('Doctor', doctor.name),
-              _summaryRow('Specialization', doctor.specialty),
-              _summaryRow('Type', _type.label),
+              _summaryRow(l.doctor, doctor.name),
+              _summaryRow(l.specialization, doctor.specialty),
+              _summaryRow(l.type, _type.label(l)),
               _summaryRow(
-                'Date & Time',
+                l.dateAndTime,
                 _slot == null
-                    ? 'Choose a time'
+                    ? l.chooseATime
                     : DateFormat('d MMM yyyy, h:mm a').format(_slot!),
               ),
-              _summaryRow('Duration', '${doctor.slotMinutes} min'),
+              _summaryRow(l.duration, l.minutesShort(doctor.slotMinutes)),
               const Divider(height: 24),
               _summaryRow(
-                'Consultation fee',
+                l.consultationFee,
                 money(doctor.feeCents, doctor.currency),
                 bold: true,
               ),
@@ -265,7 +270,7 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
     );
 
     return PageScaffold(
-      title: 'Book Appointment',
+      title: l.bookAppointment,
       showBack: true,
       bottom: wide ? null : _confirmButton(doctor),
       children: [
@@ -296,8 +301,9 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                     strokeWidth: 2, color: Colors.white),
               )
             : Text(_slot == null
-                ? 'Choose a time'
-                : 'Confirm & pay ${money(doctor.feeCents, doctor.currency)}'),
+                ? context.l10n.chooseATime
+                : context.l10n
+                    .confirmAndPay(money(doctor.feeCents, doctor.currency))),
       );
 
   Widget _summaryRow(String label, String value, {bool bold = false}) {

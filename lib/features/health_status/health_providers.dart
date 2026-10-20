@@ -3,8 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../app/locale_controller.dart';
 import '../../core/data/repositories.dart';
 import '../../core/models/health.dart';
+import '../../l10n/app_localizations.dart';
 import '../../shared/widgets/common.dart';
 import '../auth/auth_controller.dart';
 
@@ -58,13 +60,13 @@ class _AddVitalDialogState extends ConsumerState<_AddVitalDialog> {
   DateTime _at = DateTime.now();
   bool _saving = false;
 
-  static const _hints = {
-    VitalType.heartRate: 'e.g. 72',
-    VitalType.bloodPressure: 'Upper, e.g. 120',
-    VitalType.bloodSugar: 'e.g. 5.4',
-    VitalType.weight: 'e.g. 68.5',
-    VitalType.temperature: 'e.g. 36.8',
-  };
+  String _hint(AppLocalizations l) => switch (_type) {
+        VitalType.heartRate => l.hintExample('72'),
+        VitalType.bloodPressure => l.hintUpper,
+        VitalType.bloodSugar => l.hintExample('5.4'),
+        VitalType.weight => l.hintExample('68.5'),
+        VitalType.temperature => l.hintExample('36.8'),
+      };
 
   @override
   void dispose() {
@@ -112,7 +114,7 @@ class _AddVitalDialogState extends ConsumerState<_AddVitalDialog> {
 
   String? _number(String? v) {
     final n = double.tryParse((v ?? '').replaceAll(',', '.'));
-    return n == null ? 'Enter a number' : null;
+    return n == null ? context.l10n.enterNumber : null;
   }
 
   @override
@@ -120,8 +122,9 @@ class _AddVitalDialogState extends ConsumerState<_AddVitalDialog> {
     final numberInput = [
       FilteringTextInputFormatter.allow(RegExp(r'^\d{0,3}([.,]\d?)?')),
     ];
+    final l = context.l10n;
     return AlertDialog(
-      title: const Text('Add reading'),
+      title: Text(l.addReading),
       content: SizedBox(
         width: 380,
         child: Form(
@@ -131,10 +134,10 @@ class _AddVitalDialogState extends ConsumerState<_AddVitalDialog> {
             children: [
               DropdownButtonFormField<VitalType>(
                 initialValue: _type,
-                decoration: const InputDecoration(labelText: 'Type'),
+                decoration: InputDecoration(labelText: l.type),
                 items: [
                   for (final t in VitalType.values)
-                    DropdownMenuItem(value: t, child: Text(t.label)),
+                    DropdownMenuItem(value: t, child: Text(t.label(l))),
                 ],
                 onChanged: (t) => setState(() => _type = t ?? _type),
               ),
@@ -149,8 +152,8 @@ class _AddVitalDialogState extends ConsumerState<_AddVitalDialog> {
                           const TextInputType.numberWithOptions(decimal: true),
                       inputFormatters: numberInput,
                       decoration: InputDecoration(
-                        labelText: _type.hasTwoValues ? 'Systolic' : 'Value',
-                        hintText: _hints[_type],
+                        labelText: _type.hasTwoValues ? l.systolic : l.value,
+                        hintText: _hint(l),
                         suffixText: _type.unit,
                       ),
                       validator: _number,
@@ -164,9 +167,9 @@ class _AddVitalDialogState extends ConsumerState<_AddVitalDialog> {
                         keyboardType:
                             const TextInputType.numberWithOptions(decimal: true),
                         inputFormatters: numberInput,
-                        decoration: const InputDecoration(
-                          labelText: 'Diastolic',
-                          hintText: 'Lower, e.g. 80',
+                        decoration: InputDecoration(
+                          labelText: l.diastolic,
+                          hintText: l.hintLower,
                         ),
                         validator: _number,
                       ),
@@ -179,16 +182,16 @@ class _AddVitalDialogState extends ConsumerState<_AddVitalDialog> {
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.schedule_rounded),
                 title: Text(DateFormat('d MMM yyyy, h:mm a').format(_at)),
-                subtitle: const Text('When it was measured'),
-                trailing: TextButton(onPressed: _pickTime, child: const Text('Change')),
+                subtitle: Text(l.whenMeasured),
+                trailing: TextButton(onPressed: _pickTime, child: Text(l.change)),
               ),
             ],
           ),
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-        FilledButton(onPressed: _saving ? null : _save, child: const Text('Save')),
+        TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l.cancel)),
+        FilledButton(onPressed: _saving ? null : _save, child: Text(l.save)),
       ],
     );
   }

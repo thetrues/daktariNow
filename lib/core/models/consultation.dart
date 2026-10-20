@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/app_localizations.dart';
+
 import 'medical_record.dart';
 
 enum ConsultationType { chat, voice, video, phone }
@@ -7,11 +9,11 @@ enum ConsultationType { chat, voice, video, phone }
 enum ConsultationStatus { booked, inProgress, completed, cancelled }
 
 extension ConsultationTypeX on ConsultationType {
-  String get label => switch (this) {
-        ConsultationType.chat => 'Chat',
-        ConsultationType.voice => 'Voice call',
-        ConsultationType.video => 'Video call',
-        ConsultationType.phone => 'Phone call',
+  String label(AppLocalizations l) => switch (this) {
+        ConsultationType.chat => l.consultChat,
+        ConsultationType.voice => l.consultVoice,
+        ConsultationType.video => l.consultVideo,
+        ConsultationType.phone => l.consultPhone,
       };
 
   IconData get icon => switch (this) {
@@ -28,11 +30,11 @@ extension ConsultationTypeX on ConsultationType {
 }
 
 extension ConsultationStatusX on ConsultationStatus {
-  String get label => switch (this) {
-        ConsultationStatus.booked => 'Booked',
-        ConsultationStatus.inProgress => 'In progress',
-        ConsultationStatus.completed => 'Completed',
-        ConsultationStatus.cancelled => 'Cancelled',
+  String label(AppLocalizations l) => switch (this) {
+        ConsultationStatus.booked => l.statusBooked,
+        ConsultationStatus.inProgress => l.statusInProgress,
+        ConsultationStatus.completed => l.statusCompleted,
+        ConsultationStatus.cancelled => l.statusCancelled,
       };
 
   static ConsultationStatus parse(String v) => switch (v) {

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../app/locale_controller.dart';
 import '../../app/router/app_router.dart';
 import '../../app/theme/app_colors.dart';
 import '../../core/api/api_errors.dart';
@@ -12,8 +13,8 @@ import 'auth_form_layout.dart';
 /// Accounts created by the backend's `npm run db:seed` (debug builds only).
 const _seedPassword = 'Password123!';
 const _seedAccounts = [
-  ('Patient', Icons.person_outline, 'alex.johnson@medic.local'),
-  ('Doctor', Icons.medical_services_outlined, 'sarah.johnson@medic.local'),
+  (false, Icons.person_outline, 'alex.johnson@medic.local'),
+  (true, Icons.medical_services_outlined, 'sarah.johnson@medic.local'),
 ];
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -64,9 +65,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     return AuthFormLayout(
-      title: 'Welcome back',
-      subtitle: 'Sign in as a patient or a doctor.',
+      title: l.welcomeBack,
+      subtitle: l.signInSubtitle,
       child: Form(
         key: _formKey,
         child: AutofillGroup(
@@ -77,12 +79,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 controller: _email,
                 keyboardType: TextInputType.emailAddress,
                 autofillHints: const [AutofillHints.email],
-                decoration: const InputDecoration(
-                  hintText: 'Email',
-                  prefixIcon: Icon(Icons.mail_outline_rounded),
+                decoration: InputDecoration(
+                  hintText: l.email,
+                  prefixIcon: const Icon(Icons.mail_outline_rounded),
                 ),
                 validator: (v) =>
-                    v != null && v.contains('@') ? null : 'Enter a valid email',
+                    v != null && v.contains('@') ? null : l.enterValidEmail,
               ),
               const SizedBox(height: 14),
               TextFormField(
@@ -91,10 +93,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 autofillHints: const [AutofillHints.password],
                 onFieldSubmitted: (_) => _submit(),
                 decoration: InputDecoration(
-                  hintText: 'Password',
+                  hintText: l.password,
                   prefixIcon: const Icon(Icons.lock_outline_rounded),
                   suffixIcon: IconButton(
-                    tooltip: _obscure ? 'Show password' : 'Hide password',
+                    tooltip: _obscure ? l.showPassword : l.hidePassword,
                     icon: Icon(_obscure
                         ? Icons.visibility_outlined
                         : Icons.visibility_off_outlined),
@@ -102,7 +104,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                 ),
                 validator: (v) =>
-                    v == null || v.isEmpty ? 'Enter your password' : null,
+                    v == null || v.isEmpty ? l.enterPassword : null,
               ),
               if (_error != null) ...[
                 const SizedBox(height: 12),
@@ -119,19 +121,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           color: Colors.white,
                         ),
                       )
-                    : const Text('Sign in'),
+                    : Text(l.signIn),
               ),
               const SizedBox(height: 12),
               TextButton(
                 onPressed: () => context.go(Routes.register),
-                child: const Text("Don't have an account? Create one"),
+                child: Text(l.noAccountCreate),
               ),
               if (kDebugMode) ...[
                 const SizedBox(height: 16),
                 const Divider(),
                 const SizedBox(height: 12),
                 Text(
-                  'Seeded test accounts (debug builds only)',
+                  l.seededAccounts,
                   textAlign: TextAlign.center,
                   style: Theme.of(context)
                       .textTheme
@@ -144,10 +146,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   spacing: 8,
                   runSpacing: 8,
                   children: [
-                    for (final (label, icon, email) in _seedAccounts)
+                    for (final (isDoctor, icon, email) in _seedAccounts)
                       ActionChip(
                         avatar: Icon(icon, size: 18),
-                        label: Text(label),
+                        label: Text(isDoctor ? l.doctor : l.patient),
                         onPressed: _loading ? null : () => _useSeed(email),
                       ),
                   ],

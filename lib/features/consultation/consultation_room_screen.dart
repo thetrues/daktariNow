@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../app/layout/breakpoints.dart';
+import '../../app/locale_controller.dart';
 import '../../app/router/app_router.dart';
 import '../../app/theme/app_colors.dart';
 import '../../core/data/repositories.dart';
@@ -84,25 +85,27 @@ class _RoomState extends ConsumerState<_Room> {
   }
 
   Future<void> _complete() async {
+    final l = context.l10n;
     final ok = await _confirm(
-      'Complete consultation?',
-      'The chat closes and the fee is released to your wallet. '
-          'Send any prescription before completing.',
-      'Complete',
+      l.completeConsultationQ,
+      l.completeConsultationBody,
+      l.complete,
     );
-    if (ok) await _run((r) => r.complete(c.id), 'Consultation completed');
+    if (ok) await _run((r) => r.complete(c.id), l.consultationCompleted);
   }
 
   Future<void> _cancel() async {
+    final l = context.l10n;
     final ok = await _confirm(
-      'Cancel this appointment?',
-      'You will be refunded in full.',
-      'Cancel appointment',
+      l.cancelAppointmentQ,
+      l.refundedInFull,
+      l.cancelAppointment,
       destructive: true,
     );
     if (ok) {
+      // The reason is stored for the team, so it stays in English.
       await _run((r) => r.cancel(c.id, reason: 'Cancelled by patient'),
-          'Appointment cancelled and refunded');
+          l.appointmentCancelledRefunded);
     }
   }
 
@@ -111,8 +114,8 @@ class _RoomState extends ConsumerState<_Room> {
       context: context,
       builder: (_) => const _RatingDialog(),
     );
-    if (rating != null) {
-      await _run((r) => r.review(c.id, rating), 'Thanks for your feedback!');
+    if (rating != null && mounted) {
+      await _run((r) => r.review(c.id, rating), context.l10n.thanksFeedback);
     }
   }
 
@@ -126,7 +129,7 @@ class _RoomState extends ConsumerState<_Room> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Back'),
+            child: Text(ctx.l10n.back),
           ),
           FilledButton(
             style: destructive
@@ -142,6 +145,7 @@ class _RoomState extends ConsumerState<_Room> {
   }
 
   List<Widget> _actions() {
+    final l = context.l10n;
     Widget button(String label, VoidCallback onPressed, {Color? color}) =>
         Padding(
           padding: const EdgeInsets.only(right: 12),
@@ -157,10 +161,10 @@ class _RoomState extends ConsumerState<_Room> {
 
     return switch ((isDoctor, c.status)) {
       (true, ConsultationStatus.booked) => [
-          button('Start', () => _run((r) => r.start(c.id), 'Consultation started'))
+          button(l.start, () => _run((r) => r.start(c.id), l.consultationStarted))
         ],
       (true, ConsultationStatus.inProgress) => [
-          button('End & complete', _complete, color: AppColors.danger)
+          button(l.endAndComplete, _complete, color: AppColors.danger)
         ],
       (false, ConsultationStatus.booked) => [
           Padding(
@@ -168,12 +172,12 @@ class _RoomState extends ConsumerState<_Room> {
             child: TextButton(
               onPressed: _busy ? null : _cancel,
               style: TextButton.styleFrom(foregroundColor: AppColors.danger),
-              child: const Text('Cancel'),
+              child: Text(l.cancel),
             ),
           ),
         ],
       (false, ConsultationStatus.completed) when c.reviewRating == null => [
-          button('Rate doctor', _review)
+          button(l.rateDoctor, _review)
         ],
       _ => const [],
     };
@@ -182,8 +186,9 @@ class _RoomState extends ConsumerState<_Room> {
   @override
   Widget build(BuildContext context) {
     final d = widget.detail;
+    final l = context.l10n;
     final otherName = isDoctor ? c.patientName : c.doctorName;
-    final otherSubtitle = isDoctor ? (c.reason ?? 'Consultation') : c.doctorSpecialty;
+    final otherSubtitle = isDoctor ? (c.reason ?? l.consultation) : c.doctorSpecialty;
     final open = c.isUpcoming;
 
     final communication = Column(
@@ -206,7 +211,7 @@ class _RoomState extends ConsumerState<_Room> {
               initiallyExpanded: !open,
               shape: const Border(),
               leading: const Icon(Icons.receipt_long_rounded, color: AppColors.primary),
-              title: const Text('Prescription & lab tests'),
+              title: Text(l.prescriptionAndLabs),
               children: [PrescriptionSummary(detail: d)],
             ),
           ),
@@ -235,7 +240,7 @@ class _RoomState extends ConsumerState<_Room> {
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.titleSmall),
               Text(
-                '${c.type.label} · $otherSubtitle',
+                '${c.type.label(l)} · $otherSubtitle',
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context)
                     .textTheme
@@ -248,7 +253,7 @@ class _RoomState extends ConsumerState<_Room> {
       ],
     );
     final back = IconButton(
-      tooltip: 'Back',
+      tooltip: l.back,
       icon: const Icon(Icons.arrow_back_rounded),
       onPressed: () => context.canPop()
           ? context.pop()
@@ -305,13 +310,13 @@ class _RoomState extends ConsumerState<_Room> {
           titleSpacing: 0,
           centerTitle: false,
           actions: _actions(),
-          bottom: const TabBar(
+          bottom: TabBar(
             labelColor: AppColors.primary,
             indicatorColor: AppColors.primary,
             tabs: [
-              Tab(text: 'Consult'),
-              Tab(text: 'Records'),
-              Tab(text: 'Prescribe'),
+              Tab(text: l.tabConsult),
+              Tab(text: l.tabRecords),
+              Tab(text: l.tabPrescribe),
             ],
           ),
         ),
@@ -333,18 +338,17 @@ class _StatusBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = consultation;
+    final l = context.l10n;
     final when = DateFormat('EEE d MMM, h:mm a').format(c.scheduledAt);
     final (message, color) = switch (c.status) {
       ConsultationStatus.booked => (
-          isDoctor
-              ? 'Scheduled for $when. Press Start when you are ready.'
-              : 'Scheduled for $when. Your doctor will start the session.',
+          isDoctor ? l.scheduledDoctor(when) : l.scheduledPatient(when),
           AppColors.primarySoft
         ),
       ConsultationStatus.inProgress => ('', AppColors.primarySoft),
-      ConsultationStatus.completed => ('Completed', AppColors.primarySoft),
+      ConsultationStatus.completed => (l.statusCompleted, AppColors.primarySoft),
       ConsultationStatus.cancelled => (
-          'Cancelled${c.paymentStatus == 'REFUNDED' ? ' · refunded' : ''}',
+          c.paymentStatus == 'REFUNDED' ? l.cancelledRefunded : l.statusCancelled,
           AppColors.accentSoft
         ),
     };
@@ -372,10 +376,11 @@ class _RecordsPane extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final text = Theme.of(context).textTheme;
+    final l = context.l10n;
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        Text('Patient file',
+        Text(l.patientFile,
             style: text.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
         const SizedBox(height: 12),
         if (reason != null)
@@ -387,7 +392,7 @@ class _RecordsPane extends ConsumerWidget {
                 children: [
                   const Icon(Icons.report_outlined, color: AppColors.amber),
                   const SizedBox(width: 10),
-                  Expanded(child: Text('Reason: $reason')),
+                  Expanded(child: Text(l.reasonValue(reason!))),
                 ],
               ),
             ),
@@ -404,7 +409,7 @@ class _RecordsPane extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Latest readings (patient-entered)',
+                          Text(l.latestReadingsPatient,
                               style: text.labelLarge?.copyWith(fontWeight: FontWeight.w600)),
                           const SizedBox(height: 6),
                           for (final v in vitals)
@@ -414,7 +419,7 @@ class _RecordsPane extends ConsumerWidget {
                                 children: [
                                   Icon(v.type.icon, size: 16, color: v.type.color),
                                   const SizedBox(width: 8),
-                                  Expanded(child: Text(v.type.label)),
+                                  Expanded(child: Text(v.type.label(l))),
                                   Text('${v.display} ${v.type.unit}',
                                       style: const TextStyle(fontWeight: FontWeight.w600)),
                                 ],
@@ -429,18 +434,14 @@ class _RecordsPane extends ConsumerWidget {
             value: ref.watch(patientRecordsProvider(patientId)),
             onRetry: () => ref.invalidate(patientRecordsProvider(patientId)),
             builder: (items) => items.isEmpty
-                ? const AppCard(child: Text('No records on file.'))
+                ? AppCard(child: Text(l.noRecordsOnFile))
                 : RecordList(records: items, dense: true),
           ),
         ] else
-          const AppCard(
-            child: Text(
-              'Records are only available during an active consultation.',
-            ),
-          ),
+          AppCard(child: Text(l.recordsOnlyActive)),
         const SizedBox(height: 8),
         Text(
-          'Access is logged and limited to the duration of this consultation.',
+          l.accessLogged,
           style: text.labelSmall?.copyWith(color: AppColors.textMuted),
         ),
       ],
@@ -460,14 +461,15 @@ class _RatingDialogState extends State<_RatingDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     return AlertDialog(
-      title: const Text('How was your consultation?'),
+      title: Text(l.howWasConsultation),
       content: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           for (var i = 1; i <= 5; i++)
             IconButton(
-              tooltip: '$i star${i == 1 ? '' : 's'}',
+              tooltip: l.starsOutOf5(i),
               iconSize: 36,
               onPressed: () => setState(() => _rating = i),
               icon: Icon(
@@ -480,11 +482,11 @@ class _RatingDialogState extends State<_RatingDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Not now'),
+          child: Text(l.notNow),
         ),
         FilledButton(
           onPressed: _rating == 0 ? null : () => Navigator.pop(context, _rating),
-          child: const Text('Submit'),
+          child: Text(l.submit),
         ),
       ],
     );

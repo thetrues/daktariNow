@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/layout/breakpoints.dart';
+import '../../app/locale_controller.dart';
 import '../../app/theme/app_colors.dart';
 import '../../core/api/api_errors.dart';
 
@@ -37,7 +38,7 @@ class PageScaffold extends StatelessWidget {
               // pop back to; send them home instead of showing no arrow.
               leading: showBack
                   ? IconButton(
-                      tooltip: 'Back',
+                      tooltip: context.l10n.back,
                       icon: const Icon(Icons.arrow_back_rounded),
                       onPressed: () =>
                           context.canPop() ? context.pop() : context.go('/'),
@@ -95,7 +96,8 @@ class SectionHeader extends StatelessWidget {
             ),
           ),
           if (onViewAll != null)
-            TextButton(onPressed: onViewAll, child: const Text('View All')),
+            TextButton(
+                onPressed: onViewAll, child: Text(context.l10n.viewAll)),
         ],
       ),
     );
@@ -217,7 +219,8 @@ class AsyncView<T> extends StatelessWidget {
               Text(ApiException.from(e).message, textAlign: TextAlign.center),
               if (onRetry != null) ...[
                 const SizedBox(height: 8),
-                OutlinedButton(onPressed: onRetry, child: const Text('Retry')),
+                OutlinedButton(
+                    onPressed: onRetry, child: Text(context.l10n.retry)),
               ],
             ],
           ),

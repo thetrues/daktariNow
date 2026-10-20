@@ -1,0 +1,797 @@
+{
+  "@@locale": "en",
+  "appName": "DaktariNow",
+  "language": "Language",
+  "signIn": "Sign in",
+  "getStarted": "Get started",
+  "navHowItWorks": "How it works",
+  "navForDoctors": "For doctors",
+  "navFaq": "FAQ",
+  "heroEyebrow": "Verified doctors · Tanzania",
+  "heroTitle": "See a specialist today, wherever you are.",
+  "heroSubtitle": "Chat, call or video with verified doctors. Book a time that suits you, get prescriptions and lab requests, and keep your health records in one place.",
+  "findADoctor": "Find a doctor",
+  "iAmADoctor": "I'm a doctor",
+  "trustVerified": "Admin-verified doctors",
+  "trustTzs": "Fees shown in TSh",
+  "trustPrivate": "Private & secure",
+  "mockVideoConsultation": "Video consultation",
+  "mockSpecialty": "Cardiologist",
+  "mockWhen": "Today · 10:30",
+  "mockDoctorMessage": "How are you feeling today?",
+  "mockPatientMessage": "Much better, thank you!",
+  "mockPrescriptionReady": "Prescription ready",
+  "mockVerified": "Verified doctor",
+  "howTitle": "How it works",
+  "howSubtitle": "From finding a doctor to getting treatment, in three steps.",
+  "step1Title": "Choose a specialist",
+  "step1Body": "Browse by specialty, compare fees and experience, and pick a doctor you trust.",
+  "step2Title": "Book a time",
+  "step2Body": "Pick chat, voice or video and a time slot that works for you.",
+  "step3Title": "Get care",
+  "step3Body": "Consult your doctor, then find prescriptions, lab requests and notes in your records.",
+  "waysTitle": "Care the way you want it",
+  "waysSubtitle": "Every consultation happens in a private room with your doctor.",
+  "wayChatBody": "Message your doctor and share photos or reports.",
+  "wayVoiceBody": "Talk it through when typing isn't enough.",
+  "wayVideoBody": "Face-to-face consultation from your phone or computer.",
+  "specialtiesTitle": "Specialists for every need",
+  "specialtiesSubtitle": "From everyday illness to long-term conditions.",
+  "specGp": "General practitioner",
+  "specPediatrics": "Pediatrician",
+  "specGynecology": "Gynecologist",
+  "specCardiology": "Cardiologist",
+  "specDermatology": "Dermatologist",
+  "specDentistry": "Dentist",
+  "specPsychiatry": "Psychiatrist",
+  "specEnt": "Ear, nose & throat",
+  "andManyMore": "and many more",
+  "homeCareTitle": "Care at home",
+  "homeCareSubtitle": "When you can't come to us, we come to you.",
+  "homeVisitTitle": "Doctor home visit",
+  "homeVisitBody": "A doctor examines you in the comfort of your home.",
+  "sampleCollectionTitle": "Lab sample collection",
+  "sampleCollectionBody": "Samples taken at home and sent to the lab.",
+  "nurseVisitTitle": "Nurse visit",
+  "nurseVisitBody": "Wound care, injections and check-ups at home.",
+  "doctorsBandTitle": "Are you a doctor?",
+  "doctorsBandBody": "Join DaktariNow, consult patients from the app or the web, set your own hours and earn for every consultation.",
+  "doctorsPoint1": "Set your own schedule",
+  "doctorsPoint2": "Paid for every consultation",
+  "doctorsPoint3": "Work from your phone or computer",
+  "joinAsDoctor": "Join as a doctor",
+  "faqTitle": "Frequently asked questions",
+  "faq1Q": "Are the doctors real and qualified?",
+  "faq1A": "Every doctor submits their medical license and ID, and our team checks them before they can see patients.",
+  "faq2Q": "How much does a consultation cost?",
+  "faq2A": "Each doctor sets their own fee. You see it in TSh before you book.",
+  "faq3Q": "Is my information private?",
+  "faq3A": "Your records are shared only with the doctors you consult, and every connection is encrypted.",
+  "faq4Q": "Do I need to install anything?",
+  "faq4A": "No. DaktariNow works in the browser on any phone or computer.",
+  "faq5Q": "Is DaktariNow for emergencies?",
+  "faq5A": "No. In an emergency, call 112 or go to the nearest hospital.",
+  "ctaTitle": "Your next consultation is a few taps away.",
+  "ctaButton": "Create a free account",
+  "footerTagline": "Trusted care, wherever you are.",
+  "footerContact": "Contact",
+  "footerAccount": "Account",
+  "createAccount": "Create account",
+  "footerEmergency": "In an emergency, call 112.",
+  "footerCopyright": "© {year} DaktariNow. All rights reserved.",
+  "@footerCopyright": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "consultChat": "Chat",
+  "consultVoice": "Voice call",
+  "consultVideo": "Video call",
+  "consultPhone": "Phone call",
+  "back": "Back",
+  "welcomeBack": "Welcome back",
+  "signInSubtitle": "Sign in as a patient or a doctor.",
+  "email": "Email",
+  "password": "Password",
+  "enterValidEmail": "Enter a valid email",
+  "enterPassword": "Enter your password",
+  "showPassword": "Show password",
+  "hidePassword": "Hide password",
+  "noAccountCreate": "Don't have an account? Create one",
+  "seededAccounts": "Seeded test accounts (debug builds only)",
+  "patient": "Patient",
+  "doctor": "Doctor",
+  "registerSubtitlePatient": "Get care from verified specialists.",
+  "registerSubtitleDoctor": "Doctor accounts are reviewed by our team before going live.",
+  "iAmAPatient": "I'm a patient",
+  "fullName": "Full name",
+  "enterName": "Enter your name",
+  "phoneOptional": "Phone (optional)",
+  "atLeast8Chars": "At least 8 characters",
+  "loadingSpecialties": "Loading specialties…",
+  "specialty": "Specialty",
+  "couldNotLoadSpecialties": "Could not load specialties",
+  "chooseSpecialty": "Choose a specialty",
+  "licenseNumber": "Medical license number",
+  "licenseRequired": "License number is required",
+  "uploadDocsLater": "You'll upload your license and ID after signing up.",
+  "submitForVerification": "Submit for verification",
+  "haveAccountSignIn": "Already have an account? Sign in",
+  "navHome": "Home",
+  "navAppointments": "Appointments",
+  "navRecords": "Records",
+  "navProfile": "Profile",
+  "navDashboard": "Dashboard",
+  "navSchedule": "Schedule",
+  "navPatients": "Patients",
+  "navEarnings": "Earnings",
+  "signOut": "Sign out",
+  "viewAll": "View all",
+  "retry": "Retry",
+  "cancel": "Cancel",
+  "save": "Save",
+  "change": "Change",
+  "book": "Book",
+  "consultation": "Consultation",
+  "notStarted": "Not started",
+  "statusBooked": "Booked",
+  "statusInProgress": "In progress",
+  "statusCompleted": "Completed",
+  "statusCancelled": "Cancelled",
+  "statusRequested": "Requested",
+  "statusConfirmed": "Confirmed",
+  "vitalHeartRate": "Heart rate",
+  "vitalBloodPressure": "Blood pressure",
+  "vitalBloodSugar": "Blood sugar",
+  "vitalWeight": "Weight",
+  "vitalTemperature": "Temperature",
+  "recordPrescription": "Prescription",
+  "recordLabReport": "Lab report",
+  "recordXRay": "X-ray / scan",
+  "recordVaccination": "Vaccination",
+  "recordSummary": "Health summary",
+  "recordOther": "Other",
+  "fileTooLarge": "File is larger than 10 MB.",
+  "couldNotOpenFile": "Could not open the file.",
+  "errorOffline": "Cannot reach DaktariNow right now. Check your connection and try again.",
+  "errorGeneric": "Something went wrong ({code})",
+  "@errorGeneric": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "useAdminConsole": "Please use the admin console.",
+  "signInAgain": "Please sign in again",
+  "addReading": "Add reading",
+  "type": "Type",
+  "value": "Value",
+  "systolic": "Systolic",
+  "diastolic": "Diastolic",
+  "hintExample": "e.g. {value}",
+  "@hintExample": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "hintUpper": "Upper, e.g. 120",
+  "hintLower": "Lower, e.g. 80",
+  "whenMeasured": "When it was measured",
+  "enterNumber": "Enter a number",
+  "healthOverview": "Health overview",
+  "upcomingAppointment": "Upcoming appointment",
+  "noUpcomingAppointments": "No upcoming appointments",
+  "findAndBook": "Find a doctor and book one",
+  "quickActions": "Quick actions",
+  "greetingMorning": "Good morning, {name} 👋",
+  "@greetingMorning": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "greetingAfternoon": "Good afternoon, {name} 👋",
+  "@greetingAfternoon": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "greetingEvening": "Good evening, {name} 👋",
+  "@greetingEvening": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "notifications": "Notifications",
+  "searchDoctorsHint": "Search doctors, specialists...",
+  "trackYourHealth": "Track your health",
+  "trackYourHealthBody": "Add heart rate, blood pressure or sugar readings. Your doctor sees them during consultations.",
+  "noReadingYet": "No reading yet",
+  "add": "Add",
+  "labTest": "Lab test",
+  "medicines": "Medicines",
+  "reports": "Reports",
+  "emergency": "Emergency",
+  "careAtHome": "Care at home",
+  "upcoming": "Upcoming",
+  "past": "Past",
+  "noUpcomingAppointmentsDot": "No upcoming appointments.",
+  "noPastAppointments": "No past appointments.",
+  "findDoctors": "Find doctors",
+  "all": "All",
+  "noDoctorsMatch": "No doctors match your search.",
+  "bookingConfirmed": "Booking confirmed",
+  "bookingConfirmedBody": "{type} with {doctor}\n{when}\nPaid {fee}",
+  "@bookingConfirmedBody": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      },
+      "doctor": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      },
+      "fee": {
+        "type": "String"
+      }
+    }
+  },
+  "done": "Done",
+  "consultationType": "Consultation type",
+  "selectDate": "Select date",
+  "selectTime": "Select time",
+  "noFreeTimes": "No free times on this day. Try another date.",
+  "reasonForVisit": "Reason for visit",
+  "reasonHint": "Briefly describe your symptoms (optional)",
+  "appointmentSummary": "Appointment summary",
+  "specialization": "Specialization",
+  "dateAndTime": "Date & time",
+  "chooseATime": "Choose a time",
+  "duration": "Duration",
+  "minutesShort": "{minutes} min",
+  "@minutesShort": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "consultationFee": "Consultation fee",
+  "bookAppointment": "Book appointment",
+  "confirmAndPay": "Confirm & pay {fee}",
+  "@confirmAndPay": {
+    "placeholders": {
+      "fee": {
+        "type": "String"
+      }
+    }
+  },
+  "medicalRecords": "Medical records",
+  "addNewRecord": "Add new record",
+  "bloodGroupValue": "Blood {group}",
+  "@bloodGroupValue": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "allergiesValue": "Allergies: {list}",
+  "@allergiesValue": {
+    "placeholders": {
+      "list": {
+        "type": "String"
+      }
+    }
+  },
+  "editHealthInfo": "Edit health information",
+  "noRecordsYet": "No records yet. Add lab results, scans or vaccination cards so your doctors can see them.",
+  "updatedOn": "Updated {date}",
+  "@updatedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "addedBy": "Added by {name}",
+  "@addedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "noNotes": "No notes.",
+  "openFile": "Open {name} ({size})",
+  "@openFile": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteRecord": "Delete record",
+  "addRecord": "Add record",
+  "title": "Title",
+  "recordTitleHint": "e.g. Full blood count, March 2026",
+  "addTitle": "Add a title",
+  "notesOptional": "Notes (optional)",
+  "attachPdfOrPhoto": "Attach PDF or photo",
+  "removeAttachment": "Remove attachment",
+  "personalInformation": "Personal information",
+  "addPhoneNumber": "Add your phone number",
+  "professionalProfile": "Professional profile",
+  "professionalProfileHint": "Fee, bio, hospital, consultation length",
+  "verificationDocuments": "Verification documents",
+  "licenseAndId": "License and ID",
+  "healthInformation": "Health information",
+  "allergies": "Allergies",
+  "bloodGroupAllergies": "Blood group, allergies",
+  "homeServiceRequests": "Home service requests",
+  "changePassword": "Change password",
+  "helpSupport": "Help & support",
+  "verifiedDoctor": "Verified doctor",
+  "helpBody": "Questions about bookings, payments or your account? Email us and we will get back to you.",
+  "medicalEmergency": "Medical emergency?",
+  "emergencyDontWait": "Do not wait for support. Call emergency services.",
+  "healthStatus": "Health status",
+  "noReadingsYetFor": "No {type} readings yet",
+  "@noReadingsYetFor": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "logReadingsHint": "Log readings from your own devices so your doctor can see how you are doing.",
+  "latestOf": "Latest {type}",
+  "@latestOf": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "last30Days": "Last 30 days",
+  "readings": "Readings",
+  "deleteReading": "Delete reading",
+  "notADiagnosis": "These are your own readings, not a diagnosis. Talk to a doctor if something looks unusual.",
+  "saved": "Saved",
+  "phone": "Phone",
+  "enterValidPhone": "Enter a valid phone number",
+  "changeEmailHelp": "Contact support to change your email.",
+  "sharedWithDoctor": "Shared with your doctor during consultations.",
+  "bloodGroup": "Blood group",
+  "noneRecorded": "None recorded",
+  "allergyHint": "e.g. Penicillin, peanuts",
+  "addAllergy": "Add allergy",
+  "profileUpdated": "Profile updated",
+  "aboutYou": "About you",
+  "aboutYouHint": "What you treat, languages you speak…",
+  "feeHelper": "What patients pay per consultation. The platform commission is deducted from it.",
+  "enterYourFee": "Enter your fee",
+  "yearsOfExperience": "Years of experience",
+  "enter0to70": "Enter a number from 0 to 70",
+  "hospitalClinic": "Hospital / clinic",
+  "independent": "Independent",
+  "consultationLength": "Consultation length",
+  "docLicense": "Medical license",
+  "docNationalId": "National ID",
+  "docCertificate": "Certificate",
+  "whatUploading": "What are you uploading?",
+  "docUploaded": "{type} uploaded",
+  "@docUploaded": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "uploadDocsIntro": "Upload your medical license and national ID. Our team checks them before you can accept patients.",
+  "uploadedOn": "Uploaded {date}",
+  "@uploadedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "open": "Open",
+  "uploadDocument": "Upload document",
+  "fileTypesHint": "PDF, JPG, PNG or WebP, up to 10 MB.",
+  "passwordChanged": "Password changed. Other devices have been signed out.",
+  "currentPassword": "Current password",
+  "newPassword": "New password",
+  "confirmNewPassword": "Confirm new password",
+  "required": "Required",
+  "passwordsDontMatch": "Passwords do not match",
+  "homeServices": "Home services",
+  "myRequests": "My requests",
+  "homeServicesIntro": "Care at your door. Request a service and our team will call you to confirm the time.",
+  "noHomeServices": "No home services are available right now.",
+  "request": "Request",
+  "choosePreferredTime": "Choose a preferred date and time.",
+  "requestSent": "Request sent. Our team will call you to confirm.",
+  "requestService": "Request service",
+  "serviceUnavailable": "This service is no longer available.",
+  "requestWithPrice": "Request · {price}",
+  "@requestWithPrice": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "whereShouldWeCome": "Where should we come?",
+  "addressHint": "House / plot, street, area, city and a landmark",
+  "enterFullAddress": "Enter your full address",
+  "phoneHint": "Phone number, e.g. +255 7XX XXX XXX",
+  "when": "When?",
+  "choosePreferredTimeNoDot": "Choose a preferred date and time",
+  "notesForTeam": "Notes for the team (optional)",
+  "notesForTeamHint": "Who is the patient, symptoms, access instructions…",
+  "payWhenConfirmed": "You pay when the service is confirmed. The price shown is the standard price; the team will tell you about any extra costs first.",
+  "cancelRequestQ": "Cancel this request?",
+  "keep": "Keep",
+  "cancelRequest": "Cancel request",
+  "myHomeServiceRequests": "My home service requests",
+  "noRequestsYet": "No requests yet",
+  "browseHomeServices": "Browse home services",
+  "fromDaktariNow": "From DaktariNow: {note}",
+  "@fromDaktariNow": {
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "myMedicines": "My medicines",
+  "noPrescriptionsYet": "No prescriptions yet",
+  "noPrescriptionsBody": "Medicines your doctor prescribes during a consultation appear here.",
+  "takeAsDirected": "Take medicines only as your doctor directed. Pharmacies may ask to see this prescription.",
+  "labTests": "Lab tests",
+  "noLabTests": "No lab tests requested",
+  "noLabTestsBody": "When a doctor requests tests for you, they appear here. Upload your results under Records.",
+  "requestedBy": "Requested by {name} · {date}",
+  "@requestedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "labToDo": "To do",
+  "labSampleCollected": "Sample collected",
+  "samplesAtHome": "Get samples collected at home",
+  "requestSampleCollection": "Request home sample collection",
+  "dialFromPhone": "Dial {number} from your phone.",
+  "@dialFromPhone": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "isThisEmergency": "Is this an emergency?",
+  "emergencyBody": "DaktariNow is not an emergency service. If someone has severe chest pain, trouble breathing, heavy bleeding, a seizure, or is unconscious, call for help now or go to the nearest hospital.",
+  "callNumber": "Call {number}",
+  "@callNumber": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "whileYouWait": "While you wait",
+  "waitStep1": "Stay with the person and keep them calm.",
+  "waitStep2": "Do not give food or drink if they are drowsy or unconscious.",
+  "waitStep3": "Have their medicines and any medical records ready.",
+  "waitStep4": "Send someone to meet the ambulance if you can.",
+  "allCaughtUp": "You are all caught up",
+  "allCaughtUpBody": "Appointment reminders, prescriptions and home-service updates show here.",
+  "notifStarted": "{doctor} has started your consultation",
+  "@notifStarted": {
+    "placeholders": {
+      "doctor": {
+        "type": "String"
+      }
+    }
+  },
+  "tapToJoin": "Tap to join",
+  "notifUpcoming": "Upcoming: {type} with {doctor}",
+  "@notifUpcoming": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      },
+      "doctor": {
+        "type": "String"
+      }
+    }
+  },
+  "notifPrescription": "New prescription from {doctor}",
+  "@notifPrescription": {
+    "placeholders": {
+      "doctor": {
+        "type": "String"
+      }
+    }
+  },
+  "notifServiceUpdate": "{service}: {status}",
+  "@notifServiceUpdate": {
+    "placeholders": {
+      "service": {
+        "type": "String"
+      },
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "completeConsultationQ": "Complete consultation?",
+  "completeConsultationBody": "The chat closes and the fee is released to your wallet. Send any prescription before completing.",
+  "complete": "Complete",
+  "consultationCompleted": "Consultation completed",
+  "cancelAppointmentQ": "Cancel this appointment?",
+  "refundedInFull": "You will be refunded in full.",
+  "cancelAppointment": "Cancel appointment",
+  "appointmentCancelledRefunded": "Appointment cancelled and refunded",
+  "thanksFeedback": "Thanks for your feedback!",
+  "start": "Start",
+  "consultationStarted": "Consultation started",
+  "endAndComplete": "End & complete",
+  "rateDoctor": "Rate doctor",
+  "prescriptionAndLabs": "Prescription & lab tests",
+  "tabConsult": "Consult",
+  "tabRecords": "Records",
+  "tabPrescribe": "Prescribe",
+  "scheduledDoctor": "Scheduled for {when}. Press Start when you are ready.",
+  "@scheduledDoctor": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "scheduledPatient": "Scheduled for {when}. Your doctor will start the session.",
+  "@scheduledPatient": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "cancelledRefunded": "Cancelled · refunded",
+  "patientFile": "Patient file",
+  "reasonValue": "Reason: {reason}",
+  "@reasonValue": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "latestReadingsPatient": "Latest readings (patient-entered)",
+  "noRecordsOnFile": "No records on file.",
+  "recordsOnlyActive": "Records are only available during an active consultation.",
+  "accessLogged": "Access is logged and limited to the duration of this consultation.",
+  "howWasConsultation": "How was your consultation?",
+  "starsOutOf5": "{count} of 5 stars",
+  "@starsOutOf5": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notNow": "Not now",
+  "submit": "Submit",
+  "sayHello": "Say hello to {name} 👋",
+  "@sayHello": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "noMessages": "No messages.",
+  "messageHint": "Message {name}…",
+  "@messageHint": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "send": "Send",
+  "chatReadOnly": "This consultation has ended. Chat is read-only.",
+  "asDirected": "As directed",
+  "sentToPatient": "Sent to patient",
+  "startToPrescribe": "Start the consultation to prescribe or request labs.",
+  "consultationEnded": "This consultation has ended.",
+  "prescription": "Prescription",
+  "remove": "Remove",
+  "medicineStrength": "Medicine & strength",
+  "dosageHint": "Dosage, e.g. 1×2",
+  "durationHint": "Duration",
+  "addMedicine": "Add medicine",
+  "notesForPatient": "Notes for the patient (optional)",
+  "alreadyRequested": "Already requested: {list}",
+  "@alreadyRequested": {
+    "placeholders": {
+      "list": {
+        "type": "String"
+      }
+    }
+  },
+  "sendToPatient": "Send to patient",
+  "labTestsRequested": "Lab tests requested",
+  "allowMic": "Allow microphone access in your browser or phone settings, then turn it on below.",
+  "allowCamera": "Allow camera access in your browser or phone settings, then turn it on below.",
+  "allowMicCamera": "Allow microphone and camera access in your browser or phone settings, then turn them on below.",
+  "callConnectFailed": "Could not connect to the call. Check your connection and try again.",
+  "micBlocked": "Microphone access was blocked.",
+  "cameraBlocked": "Camera access was blocked.",
+  "callReady": "Ready when you are",
+  "callOpensWhenStarted": "The call opens when the doctor starts the consultation",
+  "connecting": "Connecting…",
+  "waitingToJoin": "Waiting for {name} to join… {elapsed}",
+  "@waitingToJoin": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "elapsed": {
+        "type": "String"
+      }
+    }
+  },
+  "callSpeaking": "{elapsed} · speaking",
+  "@callSpeaking": {
+    "placeholders": {
+      "elapsed": {
+        "type": "String"
+      }
+    }
+  },
+  "callConnected": "{elapsed} · connected",
+  "@callConnected": {
+    "placeholders": {
+      "elapsed": {
+        "type": "String"
+      }
+    }
+  },
+  "callEnded": "Call ended",
+  "rejoinCall": "Rejoin call",
+  "joinCall": "Join call",
+  "microphone": "Microphone",
+  "camera": "Camera",
+  "leaveCall": "Leave call",
+  "goodDay": "Good day, {name}",
+  "@goodDay": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "available": "Available",
+  "offline": "Offline",
+  "earnedThisMonth": "Earned this month",
+  "rating": "Rating",
+  "completed": "Completed",
+  "upcomingConsultations": "Upcoming consultations",
+  "noConsultationsScheduled": "No consultations scheduled.",
+  "resume": "Resume",
+  "myPatients": "My patients",
+  "searchPatients": "Search patients...",
+  "noPatientsYet": "No patients yet.",
+  "availabilitySaved": "Availability saved",
+  "mySchedule": "My schedule",
+  "scheduleHelp": "Tap an hour to toggle it. Patients only see enabled times.",
+  "scheduleHelpTz": "Tap an hour to toggle it. Patients only see enabled times (your timezone: {timezone}).",
+  "@scheduleHelpTz": {
+    "placeholders": {
+      "timezone": {
+        "type": "String"
+      }
+    }
+  },
+  "time": "Time",
+  "payoutRequested": "Payout requested. An admin will process it soon.",
+  "availableBalance": "Available balance",
+  "inEscrow": "In escrow: {amount}",
+  "@inEscrow": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "payoutPending": "Payout pending: {amount}",
+  "@payoutPending": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "requestPayout": "Request payout",
+  "thisMonth": "This month",
+  "completedConsultations": "Completed consultations",
+  "platformCommission": "Platform commission",
+  "recentTransactions": "Recent transactions",
+  "earningsAppearHere": "Earnings appear here when you complete consultations.",
+  "amount": "Amount",
+  "payoutHelper": "Available: {available} · minimum {minimum}",
+  "@payoutHelper": {
+    "placeholders": {
+      "available": {
+        "type": "String"
+      },
+      "minimum": {
+        "type": "String"
+      }
+    }
+  },
+  "enterAmount": "Enter an amount",
+  "minimumIs": "Minimum is {amount}",
+  "@minimumIs": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "moreThanAvailable": "More than available",
+  "sendTo": "Send to",
+  "sendToHint": "M-Pesa, Tigo Pesa, Airtel Money or bank",
+  "whereSendMoney": "Where should we send the money?",
+  "stillUnderReview": "Still under review.",
+  "stepAccountCreated": "Account created",
+  "stepUploadDocs": "Upload license & national ID",
+  "stepAdminReview": "Admin review (1–2 business days)",
+  "stepStartConsulting": "Start consulting & earning",
+  "verification": "Verification",
+  "verificationDeclined": "Verification declined",
+  "accountSuspended": "Account suspended",
+  "profileUnderReview": "Your profile is under review",
+  "blockedBody": "Hi {name}, please contact support if you think this is a mistake.",
+  "@blockedBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewBody": "Hi {name}, our team verifies every doctor before they can accept consultations. We'll let you know when you're approved.",
+  "@reviewBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "checkStatus": "Check status",
+  "yourDocuments": "Your documents"
+}

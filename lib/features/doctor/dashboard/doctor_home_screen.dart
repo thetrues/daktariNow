@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../app/layout/breakpoints.dart';
+import '../../../app/locale_controller.dart';
 import '../../../app/router/app_router.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../core/data/repositories.dart';
@@ -26,6 +27,7 @@ class DoctorHomeScreen extends ConsumerWidget {
     final wallet = ref.watch(walletSummaryProvider);
     final profile = ref.watch(doctorProfileProvider);
     final text = Theme.of(context).textTheme;
+    final l = context.l10n;
 
     Future<void> setOnline(bool v) async {
       try {
@@ -51,7 +53,7 @@ class DoctorHomeScreen extends ConsumerWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Good day, ${user.name}',
+                  Text(l.goodDay(user.name),
                       style: text.titleLarge
                           ?.copyWith(fontWeight: FontWeight.w700)),
                   Text(DateFormat('EEEE, d MMMM').format(DateTime.now()),
@@ -70,7 +72,7 @@ class DoctorHomeScreen extends ConsumerWidget {
                             ? AppColors.success
                             : AppColors.textMuted),
                     const SizedBox(width: 8),
-                    Text(online.value == true ? 'Available' : 'Offline'),
+                    Text(online.value == true ? l.available : l.offline),
                     const SizedBox(width: 8),
                     Switch(
                       value: online.value ?? false,
@@ -87,14 +89,14 @@ class DoctorHomeScreen extends ConsumerWidget {
             children: [
               _StatTile(
                 icon: Icons.event_note_rounded,
-                label: 'Upcoming',
+                label: l.upcoming,
                 value: upcoming.whenOrNull(data: (l) => '${l.length}') ?? '…',
                 color: AppColors.primary,
                 background: AppColors.primarySoft,
               ),
               _StatTile(
                 icon: Icons.account_balance_wallet_rounded,
-                label: 'Earned this month',
+                label: l.earnedThisMonth,
                 value: wallet.whenOrNull(
                         data: (w) => money(w.thisMonthCents, w.currency)) ??
                     '…',
@@ -103,7 +105,7 @@ class DoctorHomeScreen extends ConsumerWidget {
               ),
               _StatTile(
                 icon: Icons.star_rounded,
-                label: 'Rating',
+                label: l.rating,
                 value: profile.whenOrNull(
                         data: (p) => (p['rating'] as num).toStringAsFixed(1)) ??
                     '…',
@@ -112,7 +114,7 @@ class DoctorHomeScreen extends ConsumerWidget {
               ),
               _StatTile(
                 icon: Icons.task_alt_rounded,
-                label: 'Completed',
+                label: l.completed,
                 value: wallet.whenOrNull(
                         data: (w) => '${w.completedConsultations}') ??
                     '…',
@@ -121,12 +123,12 @@ class DoctorHomeScreen extends ConsumerWidget {
               ),
             ],
           ),
-          const SectionHeader('Upcoming consultations'),
+          SectionHeader(l.upcomingConsultations),
           AsyncView(
             value: upcoming,
             onRetry: () => refreshConsultations(ref),
             builder: (items) => items.isEmpty
-                ? const AppCard(child: Text('No consultations scheduled.'))
+                ? AppCard(child: Text(l.noConsultationsScheduled))
                 : ResponsiveGrid(
                     minItemWidth: Breakpoints.isDesktop(context) ? 480 : 380,
                     children: [
@@ -142,8 +144,8 @@ class DoctorHomeScreen extends ConsumerWidget {
                                 minimumSize: const Size(0, 40)),
                             child: Text(
                               c.status == ConsultationStatus.inProgress
-                                  ? 'Resume'
-                                  : 'Open',
+                                  ? l.resume
+                                  : l.open,
                             ),
                           ),
                         ),

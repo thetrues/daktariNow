@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../app/locale_controller.dart';
 import '../../app/router/app_router.dart';
 import '../../app/theme/app_colors.dart';
 import '../../core/data/repositories.dart';
@@ -66,13 +67,14 @@ class MedicalRecordsScreen extends ConsumerWidget {
     final user = ref.watch(currentUserProvider);
     final records = ref.watch(myRecordsProvider);
     final text = Theme.of(context).textTheme;
+    final l = context.l10n;
 
     return PageScaffold(
-      title: 'Medical Records',
+      title: l.medicalRecords,
       bottom: FilledButton.icon(
         onPressed: () => _addRecord(context, ref),
         icon: const Icon(Icons.add_circle_outline_rounded),
-        label: const Text('Add New Record'),
+        label: Text(l.addNewRecord),
       ),
       children: [
         AppCard(
@@ -89,9 +91,10 @@ class MedicalRecordsScreen extends ConsumerWidget {
                             ?.copyWith(fontWeight: FontWeight.w700)),
                     Text(
                         [
-                          if (user.bloodGroup != null) 'Blood ${user.bloodGroup}',
+                          if (user.bloodGroup != null)
+                            l.bloodGroupValue(user.bloodGroup!),
                           if (user.allergies.isNotEmpty)
-                            'Allergies: ${user.allergies.join(', ')}',
+                            l.allergiesValue(user.allergies.join(', ')),
                         ].join(' · ').ifEmpty(user.email),
                         style: text.bodySmall
                             ?.copyWith(color: AppColors.textSecondary)),
@@ -99,7 +102,7 @@ class MedicalRecordsScreen extends ConsumerWidget {
                 ),
               ),
               IconButton.outlined(
-                tooltip: 'Edit health information',
+                tooltip: l.editHealthInfo,
                 onPressed: () => context.push(Routes.healthInfo),
                 icon: const Icon(Icons.edit_outlined, size: 18),
               ),
@@ -111,10 +114,7 @@ class MedicalRecordsScreen extends ConsumerWidget {
           value: records,
           onRetry: () => ref.invalidate(myRecordsProvider),
           builder: (items) => items.isEmpty
-              ? const AppCard(
-                  child: Text('No records yet. Add lab results, scans or '
-                      'vaccination cards so your doctors can see them.'),
-                )
+              ? AppCard(child: Text(l.noRecordsYet))
               : RecordList(
                   records: items,
                   deletableBy: user.id,
@@ -176,7 +176,8 @@ class RecordList extends ConsumerWidget {
                         Text(
                           dense && r.notes != null
                               ? r.notes!
-                              : 'Updated ${DateFormat('d MMM yyyy').format(r.updatedAt)}',
+                              : context.l10n.updatedOn(
+                                  DateFormat('d MMM yyyy').format(r.updatedAt)),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: text.bodySmall
@@ -219,6 +220,7 @@ void _showRecord(
     }
   }
 
+  final l = context.l10n;
   showModalBottomSheet<void>(
     context: context,
     showDragHandle: true,
@@ -236,14 +238,14 @@ void _showRecord(
                     ?.copyWith(fontWeight: FontWeight.w700)),
             Text(
               [
-                r.category.label,
-                if (r.createdByName != null) 'Added by ${r.createdByName}',
+                r.category.label(l),
+                if (r.createdByName != null) l.addedBy(r.createdByName!),
                 DateFormat('d MMM yyyy').format(r.updatedAt),
               ].join(' · '),
               style: Theme.of(ctx).textTheme.bodySmall,
             ),
             const SizedBox(height: 16),
-            SelectableText(r.notes?.isNotEmpty ?? false ? r.notes! : 'No notes.'),
+            SelectableText(r.notes?.isNotEmpty ?? false ? r.notes! : l.noNotes),
             if (r.file != null) ...[
               const SizedBox(height: 16),
               OutlinedButton.icon(
@@ -251,8 +253,8 @@ void _showRecord(
                 icon: Icon(r.file!.isImage
                     ? Icons.image_outlined
                     : Icons.picture_as_pdf_outlined),
-                label: Text('Open ${r.file!.filename} '
-                    '(${fileSizeLabel(r.file!.sizeBytes)})'),
+                label: Text(l.openFile(
+                    r.file!.filename, fileSizeLabel(r.file!.sizeBytes))),
               ),
             ],
             if (canDelete) ...[
@@ -261,7 +263,7 @@ void _showRecord(
                 style: TextButton.styleFrom(foregroundColor: AppColors.danger),
                 onPressed: () => delete(ctx),
                 icon: const Icon(Icons.delete_outline_rounded),
-                label: const Text('Delete record'),
+                label: Text(l.deleteRecord),
               ),
             ],
           ],
@@ -337,8 +339,9 @@ class _AddRecordDialogState extends ConsumerState<_AddRecordDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     return AlertDialog(
-      title: const Text('Add record'),
+      title: Text(l.addRecord),
       content: SizedBox(
         width: 420,
         child: Form(
@@ -348,11 +351,11 @@ class _AddRecordDialogState extends ConsumerState<_AddRecordDialog> {
             children: [
               DropdownButtonFormField<RecordCategory>(
                 initialValue: _category,
-                decoration: const InputDecoration(labelText: 'Type'),
+                decoration: InputDecoration(labelText: l.type),
                 items: [
                   for (final c in RecordCategory.values)
                     if (c != RecordCategory.prescription)
-                      DropdownMenuItem(value: c, child: Text(c.label)),
+                      DropdownMenuItem(value: c, child: Text(c.label(l))),
                 ],
                 onChanged: (c) => setState(() => _category = c ?? _category),
               ),
@@ -360,17 +363,17 @@ class _AddRecordDialogState extends ConsumerState<_AddRecordDialog> {
               TextFormField(
                 controller: _title,
                 textCapitalization: TextCapitalization.sentences,
-                decoration: const InputDecoration(
-                  labelText: 'Title',
-                  hintText: 'e.g. Full blood count, March 2026',
+                decoration: InputDecoration(
+                  labelText: l.title,
+                  hintText: l.recordTitleHint,
                 ),
-                validator: (v) => (v?.trim().length ?? 0) < 2 ? 'Add a title' : null,
+                validator: (v) => (v?.trim().length ?? 0) < 2 ? l.addTitle : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _notes,
                 maxLines: 3,
-                decoration: const InputDecoration(labelText: 'Notes (optional)'),
+                decoration: InputDecoration(labelText: l.notesOptional),
               ),
               const SizedBox(height: 12),
               if (_file == null)
@@ -381,7 +384,7 @@ class _AddRecordDialogState extends ConsumerState<_AddRecordDialog> {
                           dimension: 18,
                           child: CircularProgressIndicator(strokeWidth: 2))
                       : const Icon(Icons.attach_file_rounded),
-                  label: const Text('Attach PDF or photo'),
+                  label: Text(l.attachPdfOrPhoto),
                 )
               else
                 ListTile(
@@ -390,7 +393,7 @@ class _AddRecordDialogState extends ConsumerState<_AddRecordDialog> {
                   title: Text(_file!.filename, overflow: TextOverflow.ellipsis),
                   subtitle: Text(fileSizeLabel(_file!.sizeBytes)),
                   trailing: IconButton(
-                    tooltip: 'Remove attachment',
+                    tooltip: l.removeAttachment,
                     icon: const Icon(Icons.close_rounded),
                     onPressed: () => setState(() => _file = null),
                   ),
@@ -400,10 +403,10 @@ class _AddRecordDialogState extends ConsumerState<_AddRecordDialog> {
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+        TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l.cancel)),
         FilledButton(
           onPressed: _saving || _uploading ? null : _save,
-          child: const Text('Save'),
+          child: Text(l.save),
         ),
       ],
     );

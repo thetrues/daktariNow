@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../app/locale_controller.dart';
 import '../../app/theme/app_colors.dart';
 import '../../core/format.dart';
 import '../../core/models/doctor.dart';
@@ -62,7 +63,7 @@ class DoctorTile extends StatelessWidget {
                   minimumSize: const Size(0, 36),
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                 ),
-                child: const Text('Book'),
+                child: Text(context.l10n.book),
               ),
             ],
           ),

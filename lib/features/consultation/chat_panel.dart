@@ -1,3 +1,4 @@
+import '../../app/locale_controller.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -130,6 +131,7 @@ class _ChatPanelState extends ConsumerState<ChatPanel> {
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
+    final l = context.l10n;
     return Column(
       children: [
         Expanded(
@@ -141,8 +143,8 @@ class _ChatPanelState extends ConsumerState<ChatPanel> {
                       ? Center(
                           child: Text(
                             widget.open
-                                ? 'Say hello to ${widget.otherName} 👋'
-                                : 'No messages.',
+                                ? l.sayHello(widget.otherName)
+                                : l.noMessages,
                             style: text.bodyMedium
                                 ?.copyWith(color: AppColors.textSecondary),
                           ),
@@ -174,20 +176,20 @@ class _ChatPanelState extends ConsumerState<ChatPanel> {
                                   required isFocused, maxLength}) =>
                               null,
                           decoration: InputDecoration(
-                            hintText: 'Message ${widget.otherName}…',
+                            hintText: l.messageHint(widget.otherName),
                           ),
                         ),
                       ),
                       const SizedBox(width: 8),
                       IconButton.filled(
-                        tooltip: 'Send',
+                        tooltip: l.send,
                         onPressed: _sending ? null : _send,
                         icon: const Icon(Icons.send_rounded),
                       ),
                     ],
                   )
                 : Text(
-                    'This consultation has ended. Chat is read-only.',
+                    l.chatReadOnly,
                     textAlign: TextAlign.center,
                     style:
                         text.bodySmall?.copyWith(color: AppColors.textSecondary),

@@ -85,7 +85,7 @@ class AuthController extends Notifier<AuthState> {
   Future<String> _accept(Map<String, dynamic> body) async {
     final user = AppUser.fromJson(body['user'] as Map<String, dynamic>);
     if (user.role == UserRole.admin) {
-      throw const ApiException('Please use the admin console.');
+      throw ApiException(currentL10n.useAdminConsole);
     }
     await _store.write(body['refreshToken'] as String);
     final access = body['accessToken'] as String;
@@ -164,7 +164,7 @@ class AuthController extends Notifier<AuthState> {
   /// this one.
   Future<void> changePassword(String current, String next) async {
     final access = state.accessToken;
-    if (access == null) throw const ApiException('Please sign in again');
+    if (access == null) throw ApiException(currentL10n.signInAgain);
     try {
       final res = await _authDio.post<Map<String, dynamic>>(
         '/auth/change-password',

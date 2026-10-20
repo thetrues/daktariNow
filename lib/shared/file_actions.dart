@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../app/locale_controller.dart';
 import '../core/data/repositories.dart';
 import '../core/models/medical_record.dart';
 import 'widgets/common.dart';
@@ -25,7 +26,7 @@ Future<StoredFileInfo?> pickAndUpload(
   try {
     final size = await picked.length();
     if (size != null && size > maxUploadBytes) {
-      if (context.mounted) showInfo(context, 'File is larger than 10 MB.');
+      if (context.mounted) showInfo(context, context.l10n.fileTooLarge);
       return null;
     }
     final bytes = await picked.readAsBytes();
@@ -52,7 +53,7 @@ Future<void> openStoredFile(
       mode: LaunchMode.externalApplication,
       webOnlyWindowName: '_blank',
     );
-    if (!ok && context.mounted) showInfo(context, 'Could not open the file.');
+    if (!ok && context.mounted) showInfo(context, context.l10n.couldNotOpenFile);
   } catch (e) {
     if (context.mounted) showError(context, e);
   }

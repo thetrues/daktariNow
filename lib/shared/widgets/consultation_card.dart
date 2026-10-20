@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../app/locale_controller.dart';
 import '../../app/theme/app_colors.dart';
 import '../../core/models/consultation.dart';
 import 'avatar.dart';
@@ -27,7 +28,7 @@ class ConsultationCard extends StatelessWidget {
     final c = consultation;
     final name = viewerIsDoctor ? c.patientName : c.doctorName;
     final subtitle =
-        viewerIsDoctor ? (c.reason ?? 'Consultation') : c.doctorSpecialty;
+        viewerIsDoctor ? (c.reason ?? context.l10n.consultation) : c.doctorSpecialty;
 
     return AppCard(
       onTap: onTap,
@@ -73,7 +74,7 @@ class ConsultationCard extends StatelessWidget {
                       icon: Icons.schedule_rounded,
                       label: DateFormat('h:mm a').format(c.scheduledAt),
                     ),
-                    _Meta(icon: c.type.icon, label: c.type.label),
+                    _Meta(icon: c.type.icon, label: c.type.label(context.l10n)),
                   ],
                 ),
               ],
@@ -104,7 +105,7 @@ class _StatusPill extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
       ),
       child: Text(
-        overdue ? 'Not started' : status.label,
+        overdue ? context.l10n.notStarted : status.label(context.l10n),
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
               color: cancelled ? AppColors.danger : AppColors.primaryDark,
             ),

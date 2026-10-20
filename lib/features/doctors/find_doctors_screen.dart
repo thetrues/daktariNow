@@ -1,3 +1,4 @@
+import '../../app/locale_controller.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -50,16 +51,17 @@ class _FindDoctorsScreenState extends ConsumerState<FindDoctorsScreen> {
     final q = (query: _query, specialtyId: _specialtyId);
     final results = ref.watch(doctorSearchProvider(q));
     final specialties = ref.watch(specialtiesProvider).value ?? const [];
+    final l = context.l10n;
 
     return PageScaffold(
-      title: 'Find Doctors',
+      title: l.findDoctors,
       showBack: true,
       children: [
         TextField(
           onChanged: _onSearch,
-          decoration: const InputDecoration(
-            hintText: 'Search doctors, specialists...',
-            prefixIcon: Icon(Icons.search_rounded),
+          decoration: InputDecoration(
+            hintText: l.searchDoctorsHint,
+            prefixIcon: const Icon(Icons.search_rounded),
           ),
         ),
         const SizedBox(height: 12),
@@ -68,7 +70,7 @@ class _FindDoctorsScreenState extends ConsumerState<FindDoctorsScreen> {
           child: ListView(
             scrollDirection: Axis.horizontal,
             children: [
-              _chip('All', _specialtyId == null, () => _specialtyId = null),
+              _chip(l.all, _specialtyId == null, () => _specialtyId = null),
               for (final s in specialties)
                 _chip(s.name, _specialtyId == s.id, () => _specialtyId = s.id),
             ],
@@ -79,9 +81,9 @@ class _FindDoctorsScreenState extends ConsumerState<FindDoctorsScreen> {
           value: results,
           onRetry: () => ref.invalidate(doctorSearchProvider(q)),
           builder: (doctors) => doctors.isEmpty
-              ? const Padding(
-                  padding: EdgeInsets.all(32),
-                  child: Center(child: Text('No doctors match your search.')),
+              ? Padding(
+                  padding: const EdgeInsets.all(32),
+                  child: Center(child: Text(l.noDoctorsMatch)),
                 )
               : ResponsiveGrid(
                   minItemWidth: 360,

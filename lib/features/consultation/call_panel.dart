@@ -1,3 +1,4 @@
+import '../../app/locale_controller.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -78,17 +79,18 @@ class _CallPanelState extends ConsumerState<CallPanel> {
       // Browsers block audio until a user gesture; the Join tap counts.
       if (!room.canPlaybackAudio) await room.startAudio();
 
-      final media = <String>[];
+      var micBlocked = false;
+      var cameraBlocked = false;
       try {
         await room.localParticipant?.setMicrophoneEnabled(true);
       } catch (_) {
-        media.add('microphone');
+        micBlocked = true;
       }
       if (creds.video) {
         try {
           await room.localParticipant?.setCameraEnabled(true);
         } catch (_) {
-          media.add('camera');
+          cameraBlocked = true;
         }
       }
       _started
@@ -98,20 +100,22 @@ class _CallPanelState extends ConsumerState<CallPanel> {
         if (mounted) setState(() {});
       });
       if (!mounted) return;
+      final l = context.l10n;
       setState(() {
         _state = _CallState.connected;
-        if (media.isNotEmpty) {
-          _error =
-              'Allow ${media.join(' and ')} access in your browser or phone '
-              'settings, then turn it on below.';
-        }
+        _error = switch ((micBlocked, cameraBlocked)) {
+          (true, true) => l.allowMicCamera,
+          (true, false) => l.allowMic,
+          (false, true) => l.allowCamera,
+          _ => null,
+        };
       });
     } catch (e) {
       await _leave(silent: true);
       if (!mounted) return;
       setState(() {
         _state = _CallState.idle;
-        _error = e is ApiException ? e.message : 'Could not connect to the call. Check your connection and try again.';
+        _error = e is ApiException ? e.message : context.l10n.callConnectFailed;
       });
     }
   }
@@ -142,7 +146,7 @@ class _CallPanelState extends ConsumerState<CallPanel> {
       await p.setMicrophoneEnabled(!p.isMicrophoneEnabled());
       setState(() => _error = null);
     } catch (_) {
-      setState(() => _error = 'Microphone access was blocked.');
+      setState(() => _error = context.l10n.micBlocked);
     }
   }
 
@@ -153,7 +157,7 @@ class _CallPanelState extends ConsumerState<CallPanel> {
       await p.setCameraEnabled(!p.isCameraEnabled());
       setState(() => _error = null);
     } catch (_) {
-      setState(() => _error = 'Camera access was blocked.');
+      setState(() => _error = context.l10n.cameraBlocked);
     }
   }
 
@@ -179,18 +183,18 @@ class _CallPanelState extends ConsumerState<CallPanel> {
     final remoteVideo = _videoOf(remote);
     final localVideo = _videoOf(room?.localParticipant);
     final connected = _state == _CallState.connected;
+    final l = context.l10n;
 
     final status = switch (_state) {
       _CallState.idle =>
-        widget.inProgress
-            ? 'Ready when you are'
-            : 'The call opens when the doctor starts the consultation',
-      _CallState.connecting => 'Connecting…',
-      _CallState.connected =>
-        remote == null
-            ? 'Waiting for ${widget.remoteName} to join… $_elapsed'
-            : '$_elapsed · ${remote.isSpeaking ? 'speaking' : 'connected'}',
-      _CallState.ended => 'Call ended',
+        widget.inProgress ? l.callReady : l.callOpensWhenStarted,
+      _CallState.connecting => l.connecting,
+      _CallState.connected => remote == null
+          ? l.waitingToJoin(widget.remoteName, _elapsed)
+          : remote.isSpeaking
+              ? l.callSpeaking(_elapsed)
+              : l.callConnected(_elapsed),
+      _CallState.ended => l.callEnded,
     };
 
     // 16:9 is too short on phones for the avatar, status, banner and
@@ -228,6 +232,7 @@ class _CallPanelState extends ConsumerState<CallPanel> {
     bool connected,
     String status,
   ) {
+    final l = context.l10n;
     return Container(
       margin: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -341,7 +346,7 @@ class _CallPanelState extends ConsumerState<CallPanel> {
                           )
                         : Icon(widget.type.icon),
                     label: Text(
-                      _state == _CallState.ended ? 'Rejoin call' : 'Join call',
+                      _state == _CallState.ended ? l.rejoinCall : l.joinCall,
                     ),
                     style: FilledButton.styleFrom(
                       backgroundColor: AppColors.success,
@@ -353,7 +358,7 @@ class _CallPanelState extends ConsumerState<CallPanel> {
                     room?.localParticipant?.isMicrophoneEnabled() ?? false
                         ? Icons.mic_rounded
                         : Icons.mic_off_rounded,
-                    'Microphone',
+                    l.microphone,
                     _toggleMic,
                   ),
                   if (_isVideo)
@@ -361,12 +366,12 @@ class _CallPanelState extends ConsumerState<CallPanel> {
                       room?.localParticipant?.isCameraEnabled() ?? false
                           ? Icons.videocam_rounded
                           : Icons.videocam_off_rounded,
-                      'Camera',
+                      l.camera,
                       _toggleCam,
                     ),
                   _control(
                     Icons.call_end_rounded,
-                    'Leave call',
+                    l.leaveCall,
                     _leave,
                     color: AppColors.danger,
                   ),

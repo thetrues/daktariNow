@@ -1,4 +1,16 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/widgets.dart';
+import 'package:intl/intl.dart';
+
+import '../../l10n/app_localizations.dart';
+
+/// Strings for code without a BuildContext; follows the app language.
+AppLocalizations get currentL10n {
+  final code = Intl.shortLocale(Intl.defaultLocale ?? 'en');
+  return lookupAppLocalizations(
+    Locale(AppLocalizations.delegate.isSupported(Locale(code)) ? code : 'en'),
+  );
+}
 
 class ApiException implements Exception {
   const ApiException(this.message, {this.statusCode});
@@ -20,12 +32,12 @@ class ApiException implements Exception {
       if (error.type == DioExceptionType.connectionError ||
           error.type == DioExceptionType.connectionTimeout ||
           error.type == DioExceptionType.receiveTimeout) {
-        return const ApiException(
-          'Cannot reach DaktariNow right now. Check your connection and try again.',
-        );
+        return ApiException(currentL10n.errorOffline);
       }
-      return ApiException('Something went wrong (${status ?? 'network'})',
-          statusCode: status);
+      return ApiException(
+        currentL10n.errorGeneric('${status ?? 'network'}'),
+        statusCode: status,
+      );
     }
     return ApiException(error.toString());
   }

@@ -1,23 +1,31 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme/app_colors.dart';
+import '../../l10n/app_localizations.dart';
 import 'medical_record.dart';
 
 /// Types match the API's VitalType.
 enum VitalType {
-  heartRate('HEART_RATE', 'Heart rate', 'bpm', Icons.favorite_rounded, AppColors.accent),
-  bloodPressure('BLOOD_PRESSURE', 'Blood pressure', 'mmHg', Icons.bloodtype_outlined, AppColors.primary),
-  bloodSugar('BLOOD_SUGAR', 'Blood sugar', 'mmol/L', Icons.water_drop_outlined, AppColors.purple),
-  weight('WEIGHT', 'Weight', 'kg', Icons.monitor_weight_outlined, AppColors.amber),
-  temperature('TEMPERATURE', 'Temperature', '°C', Icons.thermostat_rounded, AppColors.danger);
+  heartRate('HEART_RATE', 'bpm', Icons.favorite_rounded, AppColors.accent),
+  bloodPressure('BLOOD_PRESSURE', 'mmHg', Icons.bloodtype_outlined, AppColors.primary),
+  bloodSugar('BLOOD_SUGAR', 'mmol/L', Icons.water_drop_outlined, AppColors.purple),
+  weight('WEIGHT', 'kg', Icons.monitor_weight_outlined, AppColors.amber),
+  temperature('TEMPERATURE', '°C', Icons.thermostat_rounded, AppColors.danger);
 
-  const VitalType(this.api, this.label, this.unit, this.icon, this.color);
+  const VitalType(this.api, this.unit, this.icon, this.color);
 
   final String api;
-  final String label;
   final String unit;
   final IconData icon;
   final Color color;
+
+  String label(AppLocalizations l) => switch (this) {
+        heartRate => l.vitalHeartRate,
+        bloodPressure => l.vitalBloodPressure,
+        bloodSugar => l.vitalBloodSugar,
+        weight => l.vitalWeight,
+        temperature => l.vitalTemperature,
+      };
 
   bool get hasTwoValues => this == VitalType.bloodPressure;
 
@@ -72,15 +80,21 @@ class Service {
 }
 
 enum ServiceRequestStatus {
-  requested('REQUESTED', 'Requested'),
-  confirmed('CONFIRMED', 'Confirmed'),
-  completed('COMPLETED', 'Completed'),
-  cancelled('CANCELLED', 'Cancelled');
+  requested('REQUESTED'),
+  confirmed('CONFIRMED'),
+  completed('COMPLETED'),
+  cancelled('CANCELLED');
 
-  const ServiceRequestStatus(this.api, this.label);
+  const ServiceRequestStatus(this.api);
 
   final String api;
-  final String label;
+
+  String label(AppLocalizations l) => switch (this) {
+        requested => l.statusRequested,
+        confirmed => l.statusConfirmed,
+        completed => l.statusCompleted,
+        cancelled => l.statusCancelled,
+      };
 
   static ServiceRequestStatus parse(String v) => values.firstWhere((s) => s.api == v);
 }

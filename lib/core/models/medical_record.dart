@@ -1,3 +1,5 @@
+import '../../l10n/app_localizations.dart';
+
 enum RecordCategory { prescription, labReport, xRay, vaccination, summary, other }
 
 RecordCategory _category(String v) => switch (v) {
@@ -19,13 +21,13 @@ extension RecordCategoryApi on RecordCategory {
         RecordCategory.other => 'OTHER',
       };
 
-  String get label => switch (this) {
-        RecordCategory.prescription => 'Prescription',
-        RecordCategory.labReport => 'Lab report',
-        RecordCategory.xRay => 'X-ray / scan',
-        RecordCategory.vaccination => 'Vaccination',
-        RecordCategory.summary => 'Health summary',
-        RecordCategory.other => 'Other',
+  String label(AppLocalizations l) => switch (this) {
+        RecordCategory.prescription => l.recordPrescription,
+        RecordCategory.labReport => l.recordLabReport,
+        RecordCategory.xRay => l.recordXRay,
+        RecordCategory.vaccination => l.recordVaccination,
+        RecordCategory.summary => l.recordSummary,
+        RecordCategory.other => l.recordOther,
       };
 }
 
