@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme/app_colors.dart';
+import 'logo_mark.dart';
 
 class BrandLogo extends StatelessWidget {
   const BrandLogo({super.key, this.showName = true, this.size = 40});
@@ -10,19 +11,7 @@ class BrandLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final mark = Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        color: AppColors.primary,
-        borderRadius: BorderRadius.circular(size * 0.3),
-      ),
-      child: Icon(
-        Icons.monitor_heart_outlined,
-        color: Colors.white,
-        size: size * 0.55,
-      ),
-    );
+    final mark = LogoMark(size: size);
     if (!showName) return mark;
     return Row(
       mainAxisSize: MainAxisSize.min,
